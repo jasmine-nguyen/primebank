@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Escalation_Reason__c</fullName>
+    <description>Deterministic reason string for why the file was routed to a senior analyst (e.g. low grounding confidence, financial disparity). Kept factual/system-generated, not narrative, so it isn't itself a PII leak vector.</description>
+    <externalId>false</externalId>
+    <label>Escalation Reason</label>
+    <length>1000</length>
+    <securityClassification>Internal</securityClassification>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

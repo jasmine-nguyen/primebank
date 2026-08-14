@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Financial_Disparity_Percent__c</fullName>
+    <complianceGroup>PII</complianceGroup>
+    <description>Magnitude of declared-vs-verified variance. Classified Restricted (not just Internal like the flag) because the percentage reveals the scale of the underlying financials even without the raw figures.</description>
+    <externalId>false</externalId>
+    <label>Financial Disparity Percent</label>
+    <precision>5</precision>
+    <scale>2</scale>
+    <securityClassification>Restricted</securityClassification>
+    <type>Percent</type>
+</CustomField>

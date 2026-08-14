@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Declared_Annual_Revenue__c</fullName>
+    <complianceGroup>PII</complianceGroup>
+    <description>Self-reported annual revenue, from the application form. Compared against Verified_Annual_Revenue__c for the ASIC-verify disparity check.</description>
+    <externalId>false</externalId>
+    <label>Declared Annual Revenue</label>
+    <precision>16</precision>
+    <scale>2</scale>
+    <securityClassification>Restricted</securityClassification>
+    <trackHistory>true</trackHistory>
+    <type>Currency</type>
+</CustomField>

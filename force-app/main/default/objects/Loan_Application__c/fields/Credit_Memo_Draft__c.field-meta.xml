@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Credit_Memo_Draft__c</fullName>
+    <complianceGroup>PII</complianceGroup>
+    <description>Agent-generated credit memo draft (Action #6). Narrates applicant financials, so classified at the same sensitivity as the source figures. This is the evidence write the agent is permitted to make — never the approve/deny verdict.</description>
+    <externalId>false</externalId>
+    <label>Credit Memo Draft</label>
+    <length>32768</length>
+    <securityClassification>Restricted</securityClassification>
+    <trackHistory>true</trackHistory>
+    <type>LongTextArea</type>
+    <visibleLines>15</visibleLines>
+</CustomField>

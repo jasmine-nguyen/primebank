@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Financial_Disparity_Flag__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Deterministic flag (set by Flow/Apex, not the LLM) when |declared - verified| / verified exceeds the policy threshold. A flag, not the underlying figures — kept at Internal classification.</description>
+    <externalId>false</externalId>
+    <label>Financial Disparity Flag</label>
+    <securityClassification>Internal</securityClassification>
+    <trackHistory>true</trackHistory>
+    <type>Checkbox</type>
+</CustomField>
