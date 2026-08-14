@@ -13,6 +13,11 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <fieldPermissions>
+        <field>Loan_Application__c.Security_Type__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <field>Loan_Application__c.Financial_Disparity_Flag__c</field>
         <editable>true</editable>
         <readable>true</readable>
