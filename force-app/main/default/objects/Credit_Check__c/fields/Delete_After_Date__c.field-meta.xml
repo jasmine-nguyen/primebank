@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Delete_After_Date__c</fullName>
+    <description>Part IIIA retention expiry. Not required — the calculation isn't built yet (open thread for a future Apex/Flow component).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Part IIIA retention expiry</inlineHelpText>
+    <label>Delete After Date</label>
+    <type>Date</type>
+</CustomField>
