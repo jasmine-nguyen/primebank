@@ -20,6 +20,30 @@
         <modifyAllRecords>false</modifyAllRecords>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
+    <objectPermissions>
+        <object>CRI_Access_Log__c</object>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <fieldPermissions>
+        <field>CRI_Access_Log__c.Credit_Check__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>CRI_Access_Log__c.Loan_Application__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>CRI_Access_Log__c.Accessed_By__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
     <fieldPermissions>
         <field>Credit_Check__c.Credit_Score__c</field>
         <editable>true</editable>

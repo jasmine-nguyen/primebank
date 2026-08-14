@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Accessed_By__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Not required — Salesforce disallows Restrict/Cascade on a lookup to User (User records are deactivated, not deleted), so SetNull is the only valid constraint here, which in turn requires the field to be optional.</description>
+    <externalId>false</externalId>
+    <label>Accessed By</label>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>CRI Access Logs</relationshipLabel>
+    <relationshipName>CRI_Access_Logs</relationshipName>
+    <type>Lookup</type>
+</CustomField>

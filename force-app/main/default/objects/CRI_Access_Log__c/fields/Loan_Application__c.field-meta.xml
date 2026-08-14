@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Loan_Application__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Not required — same SetNull reasoning as Credit_Check__c on this object, so the log survives the parent application's retention-driven deletion.</description>
+    <externalId>false</externalId>
+    <label>Loan Application</label>
+    <referenceTo>Loan_Application__c</referenceTo>
+    <relationshipLabel>CRI Access Logs</relationshipLabel>
+    <relationshipName>CRI_Access_Logs</relationshipName>
+    <type>Lookup</type>
+</CustomField>

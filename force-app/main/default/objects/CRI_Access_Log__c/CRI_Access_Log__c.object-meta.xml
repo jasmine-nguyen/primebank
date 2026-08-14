@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Immutable record of who accessed a Credit Check record (pull or view), and when. Decoupled from Credit_Check__c and Loan_Application__c via Lookup (not master-detail) so the audit trail survives even if the record it audits is later deleted at retention expiry.</description>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <label>CRI Access Log</label>
+    <nameField>
+        <displayFormat>AL-{0000}</displayFormat>
+        <label>Access Log Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>CRI Access Logs</pluralLabel>
+    <sharingModel>Private</sharingModel>
+</CustomObject>
