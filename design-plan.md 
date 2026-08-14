@@ -1,0 +1,367 @@
+# FDE Final Round — S3 PrimeCapital Case Study Design Plan
+
+> **Purpose:** Working plan for collaboratively designing the S3 solution. If starting a fresh session, feed this doc as context so we don't lose track of method, framework, and progress.
+
+---
+
+## The Scenario (S3 — PrimeCapital Bank)
+
+- **Company:** SMB/mid-market lender, ANZ. ~$4B loan book, ~3,000 credit applications/month.
+- **Problem:** Analysts manually review financial statements, credit bureau reports, industry benchmarks, and compliance checks per application. Takes 2–3 days/file.
+- **Goal:** Agentforce **Employee Agent** to help analysts surface + synthesise info. Target: **30% faster** credit memo prep + more consistent decisions.
+- **Why I picked S3:** Plays to my Lead Engineer @ bank background. Higher complexity ceiling for a Senior role. Uses my prep (RAG, retrievers, decision boundaries, metrics, governance, Trust Layer).
+
+**The Ask (7 items) = the agent's required Actions:**
+1. Accept loan application record as context, retrieve applicant's full FSC profile
+2. Query external Equifax API for credit bureau data
+3. Search + summarise credit policy PDFs using RAG (120 PDFs)
+4. Extract key financials from uploaded statement PDFs
+5. Generate structured credit memo draft grounded in retrieved data
+6. Flag low-confidence applications → route to senior analyst with full evidence trail
+7. Log all AI interactions for APRA audit trail
+
+**Compliance context:** APRA Prudential Standard CPS 220 (Risk Management), Australian Privacy Act, ASIC responsible lending obligations.
+
+**Tech environment:** Financial Services Cloud (FSC), Data Cloud (licensed — case files, financial statements, benchmark reports as unstructured data), Equifax REST API, existing loan workflow in Flow, 120 credit-policy PDFs.
+
+---
+
+## How We Work (ground rules)
+
+- **Do NOT feed me the solution.** Give framework + hints + the questions to answer. I draft. I present back. You push, correct, poke holes like the panel would. Then we lock and move on.
+- The goal is that I understand it inside-out and can **defend my choices** under live panel scrutiny.
+- **Doc-grounding rule:** when we hit a technical specific (retriever type, chunking, Trust Layer, audit logging, FSC/Data Cloud mechanics), verify against **official Salesforce docs** before it goes in the design. Framework/judgment steps don't need docs — my reasoning does. Flag community/anecdotal sources explicitly.
+- Answers: concise, bullet points, plain English, ASCII diagrams/tables where useful.
+
+---
+
+## The Framework — Design Outside-In
+
+Design business-first, tech-last. Never start at "which retriever?"
+
+```
+OUTCOME  →  AGENT  →  ACTIONS  →  GROUNDING  →  GUARDRAILS  →  PROOF  →  RISKS
+(why)      (who/what) (what it    (what it      (what keeps   (does it (what
+           does)      DOES)       knows)        it safe)      work?)   breaks?)
+```
+
+| Phase | The one question it answers |
+|---|---|
+| **Outcome** | What business result, measured how? |
+| **Agent** | What's the agent's job vs. the human's job? |
+| **Actions** | What discrete things must it *do*? |
+| **Grounding** | Where does its knowledge come from? |
+| **Guardrails** | How do we stay compliant / explainable / safe? |
+| **Proof** | How do we know it works before go-live? |
+| **Risks** | What could go wrong, and what did we trade off? |
+
+**Maps to presentation sections** ("What We'd Like You to Cover"):
+architecture & design decisions · Data Cloud grounding (retriever/chunking/pre-filters) · Equifax integration · APRA compliance & explainability · human-in-the-loop · testing + RAG accuracy · risks.
+
+---
+
+## Parked Items (raise at the right phase)
+
+**① Compliance deep-dive → Guardrails phase**
+- Research what APRA CPS 220, Australian Privacy Act, ASIC responsible lending each actually *require*.
+- Map each requirement → a specific Agentforce/platform mechanism that satisfies it.
+- Verify: APRA/ASIC/OAIC for the regs; Salesforce docs for the mechanisms.
+
+**② Document anatomy → Grounding phase**
+- Inspect what each source *actually looks like* before choosing chunking:
+  ```
+  Financial statement   → tables, line items, structured numbers
+  Equifax credit report → structured fields + scores + coded sections
+  Credit policy PDFs    → prose, clauses, headings (the 120 PDFs)
+  Compliance check      → rules/checklist logic
+  ```
+- Insight to make explicit in panel: **document structure drives chunking strategy** — not one-size-fits-all.
+- Sharpening point: **not everything is RAG.** Policy PDFs = RAG. Financial statements = extraction (not retrieval). Equifax = structured API fetch. Decide which sources are chunked/retrieved vs. just fetched and passed in.
+
+**③ Agent execution / permission context → Guardrails phase (cross-cutting — affects every action)**
+- Question: *what user context does the agent run in?* Does an Employee Agent execute as the **invoking analyst** (respects their FLS/sharing → natural least-privilege) or a **dedicated agent user** (broader access → higher risk)?
+- Why it matters here: banking + PII + Australian Privacy Act → the running-user + permission-set design is a core CRO/least-privilege story.
+- Connects to: Named Query runs with the *user's read access* (Action #1 note) + Summer '26 Apex user-mode-by-default. Same thread, pulled wider.
+- Verify: how Agentforce assigns the running user, permission sets, and Employee-agent-vs-agent-user execution → official Salesforce docs before locking.
+
+---
+
+## ⚡ Format Confirmed + Build Tasks
+
+> **Deck standing rule:** every design/build decision is presented with its **trade-off** ("I chose X over Y because… ; the cost is…"). The Panel Talking Points log (below) is the running source for these.
+
+**Presentation:** 20–25 min present, 60 min total. Scenario = **S3 PrimeCapital**.
+
+**Ann confirmed: a WORKING DEMO is expected** (not just a design presentation). → Must build in the Dev org.
+- Can't build all 7 actions + live Equifax + full RAG in time. **→ Need a DEMO-SCOPING session:** what to build real (likely RAG policy pipeline + memo gen = showcase), what to mock (Equifax), what to just describe.
+- Panel questions email (confidence meaning / recommendation) — still held; Ann to advise routing (2nd question in her reply pending).
+
+**Timeline (as of Thu 13 Aug):**
+- Tonight + Fri = finish design. Weekend = build + assemble deck. Ann calls **Fri** (raise held Qs + **PIN THE INTERVIEW DATE** — biggest unknown). Interview = some day next week (TBC).
+- **Reframe:** remaining design (Guardrails/Proof/Risks) is mostly *presentation ammo*, not build blockers — the RAG showcase build is already unblocked (Grounding done). Deck = assembly from talking-points log, not creation.
+- **Design remaining:** Grounding Q4 retriever (quick) → Guardrails (big rock: compliance + execution context) → Proof → Risks.
+- **Build caution:** first-time Data Cloud/Agentforce setup has friction (provisioning, ingestion, index time) → start Fri eve, record a working run as fallback.
+
+**Running build-tasks list (for the demo):**
+- [ ] Tag each policy PDF with a single pre-filter value (no arrays — one value per chunk): e.g. `applies_to = secured_business | ... | all`; filter with `IN (...)`.
+- [ ] **Verify in org** which operators the agent retriever UI exposes (IN? nested groups?) → decides pattern A (composite + IN) vs B (separate fields + nested OR).
+- [ ] Likely need a **custom DLO/DMO schema** to expose those metadata fields as filterable (managed Data Library may not — verify in org).
+- [ ] Parse policy PDFs with **Docling / LLM-based visual pre-processing** (handles tables) → **section-aware** chunking → build search index → custom retriever with filters.
+- [ ] Build **applicant profile object** with PII fields → lock with **permission sets** (field-level security; agent inherits as invoking user) → classify fields by compliance/sensitivity for governance. (Note: agent masking is OFF — protection = perm sets + zero-retention, not masking.)
+- [ ] **Keep Equifax/CRI OUT of the search index (Part IIIA):** runtime Apex fetch → prompt for that transaction; NO Data Cloud DMO feeding a retriever. **Persist = YES (required for audit/explainability), but controlled:** permission-set-gated custom object (FLS + `with sharing`) on the applicant's credit record; minimise fields (score, key attrs, enquiry ref, timestamp); **retention aligned to Part IIIA** (per-type periods + auto destroy/de-identify) + bank record policy; **log who pulls AND who views** CRI (Trust Layer audit won't cover the Apex path). Never indexed. Verify retriever source = policy index only. *(Exact retention period + raw-vs-minimised = policy call → state assumption / clarify.)*
+- [ ] **Verified-vs-self-reported disparity flag (ASIC verify):** model self-reported (application fields) separate from verified (extracted financials + Equifax). **Deterministic** check in Flow/Apex (`variance = |declared−verified|/verified > threshold → flag`) — NOT the LLM. Memo prompt narrates the flag; flag feeds memo + optional escalation. Principle: rules that must be right live in code, not the model.
+- [ ] **Test + tune the retriever in Retriever Playground** (isolation, before wiring to agent) using the 5 dummy PDFs. Test: pre-filter (segment returns right docs + universal), hybrid on exact terms (DSCR 1.25x, $500k), chunking (whole sections), table handling ($2M approver). Tune: chunk size/overlap, pre-filter values (case-sensitive!), confirm hybrid not vector-only, parser for tables.
+- [ ] **Capture evidence for the deck:** Playground screenshots (chunks + scores), vector-only vs hybrid before/after, pre-filter exclusion shot, a query→expected→returned→✅/✗ table (= mini ground-truth set + "how I measured RAG accuracy").
+
+**⚠️ Build gotchas to respect (these also = panel call-outs — see Talking Point #10):**
+- **One pre-filter value per chunk** (1:N indexing keeps only one, no arrays) → design the tag taxonomy around single values, not multi-tags.
+- **Filter VALUES are case-sensitive** (field names aren't) → enforce a lowercase convention, or filters silently return nothing (nasty to debug live).
+- **Retriever filter expressiveness may be flat** (AND-only / OR-only) → don't design a filter that needs nested boolean until you've confirmed the retriever supports it.
+
+> **Convention going forward:** every gotcha we hit gets logged in BOTH places — the build list (so it shapes the build) and the talking-points log (so it's a panel call-out showing we anticipated it).
+
+---
+
+## Progress Tracker
+
+| Phase | Status |
+|---|---|
+| 1. Outcome + Agent | ✅ Locked — decisions made (open threads flagged fwd) |
+| 2. Actions | ✅ Locked — all actions SCOPED (detailed design continues per-action, see matrix) |
+| 3. Grounding | ✅ Locked — sources/chunking/pre-filter/retriever done (org-verify tails) |
+| 4. Guardrails | 🟡 In progress — parked ① (compliance) + ③ (execution context) |
+| 5. Proof | ⬜ Not started |
+| 6. Risks | ⬜ Not started |
+
+**Two axes of "done" (to avoid false ticks):**
+- **Phase locked** = one design *lens* applied across all actions (open threads flagged forward). Does NOT mean any action is finished.
+- **Action complete** = every applicable facet ✅ → panel-ready. An action is complete only after the last phase that touches it (data actions: after Proof).
+
+---
+
+## Action Completeness Matrix (the real "is it properly done?" tracker)
+
+> Tick an action only when its whole row has no ⬜ left. Fill cells as each phase passes over each action.
+
+| Action | Scope | Mechanism | Grounding | Guardrails | Proof |
+|---|:--:|:--:|:--:|:--:|:--:|
+| 1. Retrieve FSC profile | ✅ | ✅ Named Query | ✅ fetch | ✅ runs as invoking user (perm-set FLS); Apex bypasses Trust Layer | ⬜ |
+| 2. Query Equifax | ✅ | ⬜ callout? | ✅ fetch (no chunk) | 🟡 Part IIIA: perm-set + custom log (Apex bypasses Trust Layer) | ⬜ |
+| 3. Extract financials | ✅ | ⬜ extract-how? | ✅ extract (no chunk) | 🟡 PII via perm-set FLS (masking off for agents) | ⬜ |
+| 4. Search+summarise policy | ✅ | ✅ individual retriever on HYBRID index (ensemble if +benchmark) | ✅ parse=Docling/LLM-visual · chunk=section-aware · pre-filter=applies_to+IN (verify operators) | 🟡 grounding + zero-retention | ⬜ RAG acc. |
+| 5. Assess confidence | ✅ | ⬜ | — | 🟡 feeds human-in-loop | ⬜ measure |
+| 6. Generate memo | ✅ | ⬜ prompt tmpl | 🟡 consumes | 🟡 grounding + zero-retention + no-verdict (masking OFF for agents) | ⬜ explainability |
+| 7. Escalate w/ evidence | ✅ | ⬜ | — | 🟡 human-in-loop (accountability) | ⬜ |
+| Log (cross-cut) | ✅ | ⬜ | — | 🟡 Einstein audit trail → Data Cloud | ⬜ audit/APRA |
+
+`✅ done · 🟡 partial · ⬜ open · — n/a`
+
+---
+
+## Panel Talking Points — Trade-offs to Raise (running log)
+
+> Accumulates across phases. These are the "thought process + trade-off" moments to surface *live* in the presentation — where showing **how** I chose matters more than the choice itself. Each phase appends its own.
+
+**Action #1 — Retrieve FSC profile (Named Query API)**
+1. **Release maturity / version dependency.** Named Query API only reached GA recently (Spring/Summer '26, API v66–67). I'd confirm the org is on v66+ before committing; if not, fall back to Flow (Get Records) or Apex invocable. *Trade-off:* the newest option is simplest + best-performing, but carries a version dependency the older paths don't. *(A panellist may test whether I know it's recent.)*
+2. **Parameter boundary.** Inputs are supported in **WHERE and LIMIT only**. Fine for a lookup by ID/filter — but I'd flag the limit so no one designs a query needing parameterised OFFSET or sub-queries.
+3. **"Full FSC profile" spans multiple objects.** An FSC profile isn't one record (Account/Person Account + financial accounts + related objects). *Design choice:* one relationship SOQL query vs. several actions. *Trade-off:* single query = fewer round-trips but more complex/brittle SOQL; multiple = simpler each, more orchestration.
+4. **Security is the designer's responsibility — and a selling point.** Named Query runs with the invoking user's **read access** (Summer '26 also defaults Apex to user mode). *Design point:* filtered queries + correct permission sets, never an unbounded fetch. *Doubles as* a least-privilege / Trust-Layer story for the CRO.
+
+*Mechanism options considered (slide-ready):*
+
+| Option | Status | Trade-off |
+|---|---|---|
+| **Named Query API** | GA (v66+) | Simplest + fastest + permission-aware — **primary** |
+| Flow + Get Records | GA | Admin-friendly fallback; more moving parts |
+| Apex invocable + SOQL | GA | Most flexible; pro-code overhead |
+
+**Grounding — source-to-pattern split (actions 2–4)**
+5. **Four sources, three patterns — "not everything is RAG."** FSC profile = fetch (SOQL), Equifax = fetch (API), financial statements = extract, policy PDFs = RAG. *Lead line:* I matched the retrieval pattern to the task, not one-size-fits-all.
+6. **Extract vs RAG defence (likely probe).** *Q a panellist asks:* "statements are in Data Cloud as unstructured data like the policy PDFs — why extract, not RAG?" *Answer:* RAG = "search prose when I don't know where the answer is"; extract = "pull THE value when I know exactly what I need." A credit memo needs precise figures, not plausible chunks. Split is driven by the *task*, not where the doc lives.
+7. **Benchmark reports = a lurking 5th source.** Environment lists industry benchmark reports in Data Cloud, not in the numbered Ask. I'd RAG these for peer comparison — noticing it shows I read the whole brief.
+8. **Chunking the policy PDFs (all doc-verified, official Salesforce Help).**
+   - **Section-aware chunking** — the *default* strategy for PDFs; uses headings, keeps a section together, never splits mid-sentence. Perfect for heading-structured policy docs.
+   - **Max token = 512 by default.** For English/Latin, ~1 word ≈ 1 token, so default is fine. For **non-Latin** content, set *below* 512 (Data 360 counts punctuation marks for non-Latin, which can overshoot real tokens and drop text from the embedding).
+   - **Overlap tokens** — only kicks in when one section is big enough to split into multiple chunks; adds end-of-chunk tokens to the next chunk for smoother retrieval.
+   - **Tuning lever + trade-off:** max token is also bounded by the embedding model (SFR-v2-small / Salesforce Embedding V2 Small supports up to 1,200). If policy *sections run longer than 512 tokens*, raise max token (up to the model limit) to keep a full clause intact — trading some retrieval precision for more context per chunk.
+9. **How to CHOOSE chunking + parsing (strong reframe).** Driven by *format + parser + what survives parsing + tables* — not how granular a doc looks.
+   - **Parsing happens BEFORE chunking.** Data 360 has 3 parsers: Default Parser, **Docling**, LLM-based visual pre-processing (official — Salesforce Trailhead). For born-digital policy PDFs with tables → **Docling** (reconstructs tables to Markdown/JSON) or **LLM-based visual pre-processing** (prepares tables/images for chunking, preserving table relationships). ← this is the real lever for the table problem, not chunking strategy.
+   - **Semantic-based passage extraction is HTML-tag-based** (`<h1–h6>`, `<b>`, `<p>`…). A raw PDF has no tags — but Docling *can emit HTML/Markdown*, so semantic-based on a *parsed* PDF is plausible though NOT confirmed in the chunking docs. **Documented default for PDF = section-aware.** Panel-safe line: "section-aware is the documented PDF default; I'd validate semantic-based on parsed PDFs rather than assume."
+   - **Tables carry critical logic** (approval authority by $ threshold, ratio limits). Handled at the PARSE step (Docling / LLM-visual), not by prose chunking. Code Extension = fallback for truly custom needs.
+   - **Strategy + parser set per search index, not per document** — pick one for a homogeneous corpus; split indexes only if formats differ.
+   - Demonstrated via a 2-PDF comparison (RAA = clean headings+prose; CHRC = headings+bold+**tables** with $ thresholds).
+   - **Meta talking point:** resolved a conflict between two AI answers (mine vs Agentforce) by going to official docs → *"here's what's documented, here's what I'd test"* beats any confident assertion. Models the doc-grounding discipline live.
+10. **Pre-filtering the 120 policy PDFs (doc-verified — Salesforce Trailhead).**
+    - Custom retriever supports **Filter Documents to Return** — up to 10 conditions, AND/OR, each = a *field from the search index* + operator + value.
+    - **Key insight:** a pre-filter is only as good as the metadata on the docs — you can't filter on a field you never stored. So each PDF must be tagged (`loan_type`, `borrower_type`, `scope`).
+    - **Build catch (community):** managed Data Library may not expose custom metadata fields for filtering → likely need a **custom DLO/DMO schema**. Verify early.
+    - **Over-filtering failure mode:** universal policies (e.g. general responsible-lending) apply to all loans; tagging must not exclude them.
+      - **How (doc-verified):** each chunk indexes only ONE pre-filter value (no arrays) — so don't multi-tag. Two patterns:
+        - **A — composite value + IN:** tag `applies_to='secured_business'` / `'all'`; filter `applies_to IN ('secured_business','all')`. Works with a flat filter.
+        - **B — separate fields + OR:** `(loan_type='secured' AND borrower_type='business') OR scope='all'`. Needs nested-boolean filter (query-API supports; retriever UI may be flat-only → verify).
+      - **Build gotchas:** (1) one pre-filter value per chunk in 1:N; (2) filter VALUES are case-sensitive (field names aren't) → pick a lowercase convention or filters silently miss.
+      - **Verify in org:** which operators the agent retriever UI exposes (IN? nested groups?) — decides A vs B.
+    - **Two payoffs:** quality (narrower set → higher precision, right-segment grounding) + cost/speed (fewer chunks to vector-compare → faster, cheaper).
+11. **Retriever design (doc-verified — Trailhead).**
+    - Only policy is RAG → **one individual retriever**. Non-RAG sources (profile/Equifax/financials) reach the memo prompt as **direct inputs**, not via retriever → the "one retriever per template" limit is a non-issue here.
+    - **Hybrid index (not vector-only) for policy** — vector search struggles with numbers/domain terms; credit policy is full of exact terms (ratios `1:1`, `$500k`, clause numbers). Hybrid = semantic + keyword, fusion-ranked → catches them. *This is a why-RAG-fails-on-financials detail.*
+    - **Ensemble retriever** = the feature for grounding on MULTIPLE sources (individual retriever = 1 index = 1 DMO). Only needed if benchmark reports are added as a 2nd RAG source. NOT the same as hybrid (which is a search *method*, not source-spanning). Ensemble merges + **dynamically** reranks by query similarity — **per-retriever weighting is NOT a supported feature** (verified; an AI answer claimed it, then retracted under push).
+
+*(Guardrails, Proof, Risks will each append their own.)*
+
+---
+
+## Phase 1 — LOCKED DECISIONS (my calls, deck-ready)
+
+**1. Outcome (business win, tool-agnostic)**
+- Cut credit memo prep time by **30%** and improve **decision consistency** across analysts — by having an agent surface + synthesise info so analysts decide faster and more uniformly.
+- ⚠️ Open thread: "improve consistency" has **no metric in the case** — must define how we measure it in the **Proof** phase.
+
+**2. User + agent type**
+- User = the **human credit analyst** (not the customer).
+- Therefore an **Employee Agent** (serves the employee), not a Service Agent.
+
+**3. The line (agent vs. human)**
+- **Agent:** surfaces + synthesises data, drafts the credit memo, flags low-confidence apps, routes them to a senior analyst with a full evidence trail.
+- **Human:** makes the **approve / deny** decision.
+- **Framing line for the panel:** *the boundary is regulatory, not UX.* Under APRA/ASIC a human stays accountable for the credit decision → accountability can't be delegated to an AI → the agent assists, the analyst decides.
+
+**4. Decision boundary**
+
+| | The agent's behaviour |
+|---|---|
+| **Answer** (read-only) | search sources, query Equifax, extract financials from statements, present to analyst |
+| **Act** (writes only) | save the credit memo **draft**; write the **audit log** entry |
+| **Escalate** | low-confidence app → route to senior analyst **with evidence trail** |
+| **Refuse** | write the **decision** (approve/deny); alter **source financial records** |
+
+- Key reframe locked: **the agent may write *evidence* (logs, drafts) but never the *verdict*.**
+
+**5. Out of scope / Refuse**
+- Must not approve or deny an application.
+- Must not write decision fields or modify source financial records.
+- (Safe writes — audit logs, memo drafts — are explicitly allowed.)
+
+---
+
+## Phase 2 — LOCKED ACTIONS
+
+**Trigger (NOT an action):** accept loan application record as context — this launches the session.
+
+```
+ACTIONS
+  1. Retrieve applicant profile      → record lookup (mechanism TBD @ architecture)
+  2. Query Equifax                   → external API call  (kick off early — slow)
+  3. Extract key financials          → extraction (from statement PDFs)
+  4. Search + summarise credit policy→ RAG retriever + grounded summary (1 action)
+  5. Assess grounding confidence     → quality signal (feeds routing)
+  6. Generate credit memo draft      → WRITE
+  7. Escalate if low-confidence      → route to senior analyst
+                                        WITH memo + evidence trail (conditional WRITE)
+
+CROSS-CUTTING
+  •  Log every AI interaction (audit) — wraps all steps, not a final box
+
+SEQUENCE
+  [app record]
+     → retrieve profile ┐
+     → query Equifax ───┤  (Equifax fired early for latency)
+     → extract financials┘
+     → search+summarise policy (RAG)
+     → assess grounding confidence
+     → generate memo draft
+     → IF confidence < threshold → escalate w/ memo + evidence
+     [log wraps every step]
+```
+
+**Key distinctions locked:**
+- Two kinds of "read": record lookup (known FSC record by ID) ≠ RAG retriever (semantic search over policy prose).
+- Summarise = **generation** (writes new text), not extraction.
+- Escalation package = **memo draft + evidence trail** (sources, Equifax data, extracted financials, citations, reason-for-flag) — memo alone = *what*; evidence trail = *why* (CRO explainability).
+- Agent writes **evidence** (log, draft) never the **verdict**.
+
+**Flags travelling with Phase 2:**
+- `confidence meaning` → working assumption = **grounding confidence** (did we retrieve strong enough data?), *not* credit-risk judgment. Panel to confirm.
+- `profile-lookup mechanism` → **RESOLVED**: **Named Query API** (define SOQL → custom agent action). GA as of Spring/Summer '26 (API v66–67) — *confirm exact release + that the Dev org is on it*. Simpler + faster + permission-aware vs alternatives. Fallbacks if needed: Flow (Get Records) or Apex invocable. Constraints: params in WHERE/LIMIT only. Open nuance: "full FSC profile" may span multiple objects → one relationship query or several actions?
+  - **Governance park → Guardrails:** Named Query runs with the *user's own read access*; Summer '26 also makes Apex run in user mode by default → agent sees only what the analyst can → least-privilege / Trust-Layer story for the CRO.
+  - Sources: developer.salesforce.com blog (official); release status from community round-ups (verify vs official release notes).
+
+**Verified this phase (Salesforce official — Trailhead / salesforce.com):**
+- Retriever = returns relevant info from a search index to augment the LLM prompt; retrievers ground prompt templates with Data Cloud data. → confirms action #4's mechanism.
+
+**Where each action gets its deep-dive (how + catches):** the Actions phase locked *what*; the *how* lands in the later phase that owns the concern — we don't do a separate per-action pass.
+
+```
+1. Retrieve FSC profile   → GROUNDING (mechanism resolved: Named Query)
+2. Query Equifax          → GROUNDING (+ integration: auth/errors/retries)
+3. Extract financials     → GROUNDING (extraction mechanics)
+4. Search+summarise policy→ GROUNDING (retriever + chunking + pre-filters) ← biggest
+5. Assess confidence      → GUARDRAILS (+ PROOF: measurement)
+6. Generate memo          → GROUNDING (grounded gen) + GUARDRAILS (recommendation/explainability)
+7. Escalate w/ evidence   → GUARDRAILS (human-in-the-loop)
+cross-cut: Log            → GUARDRAILS (audit / APRA)
+```
+**Catches for the panel** accrue continuously (logged per phase), compiled into a panel-prep sheet near the end — not a separate pass.
+
+---
+
+## Phase 3: Grounding — ✅ DONE (see matrix + talking points 8–11)
+
+Sources bucketed · parse (Docling/LLM-visual) · chunk (section-aware) · pre-filter (`applies_to`+IN) · retriever (individual/hybrid; ensemble if +benchmark). Org-verify tails: retriever filter operators; custom DMO for filter fields.
+
+---
+
+## CURRENT STEP — Phase 4: Guardrails (parked ① compliance + ③ execution context)
+
+**Question:** how do we stay *compliant, explainable, safe* — provably? This is the CRO section; explainability + audit are hard requirements.
+
+**Method:** build a **requirement → mechanism → evidence** table. Never "we'll be compliant"; always "requirement X → mechanism Y." Organise across six lenses: explainability · data privacy · human accountability · audit trail · access control (parked ③) · AI safety.
+
+**Step 1 (Jas drafting):** for each regime, 2–3 bullets on *what it requires that's relevant to the agent* — drafted from bank knowledge, then Claude verifies vs APRA/ASIC/OAIC:
+1. APRA CPS 220 (Risk Management)
+2. Australian Privacy Act
+3. ASIC responsible lending (RG 209)
+
+**Step 2 (next):** map each requirement → platform mechanism (Trust Layer, citations, audit logging, execution context) — Claude verifies mechanisms vs Salesforce docs.
+
+**Step 1 — VERIFIED REQUIREMENTS (locked; sources: APRA / ASIC / OAIC official):**
+
+*Requirement vs mechanism:* audit logging, override, telemetry, input sanitisation, explainable logic, escalation = **mechanisms** (step 2), not requirements.
+
+- **APRA CPS 220** (applies to ALL lending): board-approved risk management framework + risk appetite statement; three-lines-of-defence; CRO; independent review ≥ every 3 yrs; board declaration to APRA. → *For the agent:* operate within the RMF; manage the new **model risk** the AI adds; clear human accountability; evidence the controls; escalate breaches.
+- **Privacy Act** (applies to ALL): APP 6 (use PII only for collected purpose → no training on customer data); APP 11 (secure PII from unauthorised access/leak); **Part IIIA credit reporting** (Equifax = credit reporting info: consent, permitted-use, retention — CR Code 2014); **APP 8 cross-border** (offshore LLM processing = a disclosure).
+- **ASIC RG 209** (CONSUMER credit only — NOT business): 3 RLOs = reasonable inquiries · reasonable steps to **verify** · assess **'not unsuitable'**. ⚠️ Scope nuance: PrimeCapital = SMB/mid-market → much of book is business → RG 209 may not strictly apply. Possible panel clarifying Q.
+
+**Guardrails talking points (running):**
+12. **Regimes don't apply evenly** — APRA (all lending) · Privacy incl. Part IIIA + APP 8 (all) · ASIC RG 209 (consumer only). Naming the asymmetry = senior signal.
+13. **The agent grounds, never assumes** — ASIC "verify" obligation maps directly to RAG grounding + document extraction (no hallucinated financials). Strong AI-specific framing.
+14. **Offshore-LLM = cross-border disclosure (APP 8)** + **Equifax = Part IIIA credit reporting** — two privacy angles a generic answer misses; both handled by Trust Layer data residency / masking (step 2).
+15. **Scope clarifying Q:** is the agent used for consumer lending, business, or both? Changes which regime dominates.
+
+**Step 2 — REQUIREMENT → MECHANISM MAP (verified; Trust Layer per Trailhead + reputable secondary):**
+
+| Requirement | Mechanism | Source |
+|---|---|---|
+| APRA — audit/evidence | Einstein audit trail → Data Cloud (AI Audit & Feedback Data Kit dashboards) | Platform |
+| APRA — human accountability | Human-in-the-loop (agent assists, human decides) | **Design (Phase 1)** |
+| APRA — model risk/monitoring | Audit dashboards + Feedback + Proof-phase eval (RAGAS) | Platform + process |
+| Privacy APP 6 — no training | **Zero Data Retention** (contractual: no store/train) | Trust Layer |
+| Privacy APP 11 — secure PII | Data masking ⚠️ **disabled for agents (verify)** | Trust Layer |
+| Privacy Part IIIA — Equifax | Permission-set-gated Apex + custom audit log | **Design/custom** |
+| Privacy APP 8 — offshore LLM | Geo-aware routing (auto, if provisioned AU) or **BYOLLM** with AU endpoint + zero-retention | Platform |
+| ASIC — verify, don't assume | Dynamic grounding + RAG/extraction architecture | Trust Layer + **design** |
+| ASIC — 'not unsuitable' | Human decides | **Design (Phase 1)** |
+
+**Guardrails talking points (cont.):**
+16. **Half the compliance answer is DESIGN, not a toggle** — human accountability + verify-via-grounding + human-decides are Phase 1/2 decisions, not Trust Layer features. Knowing which is which = senior signal.
+17. **GOTCHA — data masking is DISABLED for agents (official Salesforce Help), both pattern- and field-based.** Deliberate, for agent performance. So you CAN'T rely on masking for an agent — turning on the Trust Layer masking screens only affects prompt-template/embedded features, not agents. **Agent PII is instead protected by:** (a) **Zero Data Retention** (protected in transit, not stored/trained on), (b) **permission-aware access** (agent runs as invoking user → FLS), (c) **Data 360 Policy-Based Governance**. Knowing masking is off + naming what covers PII instead = senior gold.
+    - **Parked ③ RESOLVED — execution context:** agent runs as the **invoking analyst** (permission inheritance) → inherits their access → natural least privilege. Doc-grounded.
+    - **Field-level design (build):** applicant profile object + PII fields + **permission sets** (the real control) + classify fields by compliance/sensitivity (for governance + Shield + non-agent templates, NOT to trigger agent masking).
+18. **GOTCHA — Apex/BYOM callouts bypass the Trust Layer** → Equifax (Apex) + Named Query aren't Trust-Layer-protected → you own masking/audit there. *This is why the Part IIIA custom permission-set + log design is correct.*
+19. **GOTCHA — Trust Layer ≠ hallucination prevention, ≠ compliance check** → grounded responses can still be wrong; policy-compliance is YOUR design + human-in-the-loop. The honest CRO answer.
+20. **CRI never indexed (Part IIIA safeguard).** Equifax = fetch per-transaction, NOT RAG → credit reporting data never lands in the shared vector index → no cross-session semantic exposure. Validates the fetch-not-RAG bucketing. Apex controller: `with sharing` + strip CRI from prompt context unless authorised for that assessment.
+21. **Verified vs self-reported (ASIC verify, operationalised).** Memo prompt instructs the agent to FLAG disparities between self-reported figures and the extracted/verified financials. "Reasonable steps to verify" in action.
+22. **APP 8 refined (doc-verified):** standard models use **geo-aware routing** (auto — routes to nearest data centre by Data 360 provisioning region); explicit AU control via **BYOLLM** (own Azure/Bedrock Sydney instance, own creds, still through Trust Layer) + zero-retention. NOT a simple "pin" toggle. (Default reasoning = OpenAI GPT-4o / sometimes Azure OpenAI GPT-4o.)
+23. **Persist Equifax? YES — required, but controlled.** Auditability/explainability + the fact the Trust Layer audit can't see the Apex pull make persistence *necessary*, not optional. Store on a perm-set-gated custom object (FLS, `with sharing`), minimised, Part IIIA retention + destruction, access-logged (pull AND view), never in the vector store. Line: "retention makes it reconstructable; controls keep it Part IIIA-compliant."
+24. **Proof — RAGAS pairs with a NATIVE tool.** Retriever Playground is **GA** with built-in **RAG metrics** (official); Salesforce distinguishes **context precision, faithfulness, answer relevance** — the RAGAS family. Framing: "RAGAS = the standard framework; Retriever Playground surfaces the same metrics natively, so I can show them in-org." ⚠️ Verify exact metric labels in the org (don't quote "Source Recall Score" unconfirmed). Agentforce DX = end-to-end agent testing. Guardrails proven by deterministic tests, NOT anomaly models.
