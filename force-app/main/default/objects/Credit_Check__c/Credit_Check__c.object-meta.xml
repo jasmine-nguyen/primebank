@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Immutable record of a single Equifax/CRI pull for a loan application. Insert-only — never updated after creation. Cascade-deletes with its parent Loan Application at Part IIIA retention expiry.</description>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <label>Credit Check</label>
+    <nameField>
+        <displayFormat>CC-{0000}</displayFormat>
+        <label>Credit Check Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Credit Checks</pluralLabel>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

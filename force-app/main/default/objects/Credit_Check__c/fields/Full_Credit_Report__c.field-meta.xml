@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Full_Credit_Report__c</fullName>
+    <complianceGroup>PII</complianceGroup>
+    <description>Optional raw bureau payload. May be left unpopulated.</description>
+    <externalId>false</externalId>
+    <label>Full Credit Report</label>
+    <length>32768</length>
+    <securityClassification>MissionCritical</securityClassification>
+    <type>LongTextArea</type>
+    <visibleLines>20</visibleLines>
+</CustomField>

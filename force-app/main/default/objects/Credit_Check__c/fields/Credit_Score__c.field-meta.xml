@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Credit_Score__c</fullName>
+    <complianceGroup>PII</complianceGroup>
+    <description>Bureau credit score returned by this specific enquiry. Not required — a failed bureau call may still need logging without a score.</description>
+    <externalId>false</externalId>
+    <label>Credit Score</label>
+    <precision>4</precision>
+    <scale>0</scale>
+    <securityClassification>MissionCritical</securityClassification>
+    <type>Number</type>
+</CustomField>
