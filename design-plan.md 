@@ -103,9 +103,123 @@ architecture & design decisions · Data Cloud grounding (retriever/chunking/pre-
 - **Build caution:** first-time Data Cloud/Agentforce setup has friction (provisioning, ingestion, index time) → start Fri eve, record a working run as fallback.
 
 **Running build-tasks list (for the demo):**
+
+**⚙️ ORG DECISION (locked):** No single free org has FSC + Agentforce + **Data Cloud** together. Agentforce+Data Cloud dev org → FSC package install FAILS (bundles Insurance + Wealth-Mgmt standard objects: Claim, InsurancePolicy, FinancialGoal, etc. — not provisioned, won't compile). FSC trial org → no Data 360. **→ Build in the Agentforce + Data Cloud org** (Data Cloud = the RAG showcase, non-negotiable); represent FSC with **Person Accounts + custom `Loan_Application__c`**. FSC objects sacrificed; Data Cloud kept.
+
+**🎁 DECK GIFT (trade-off story — use verbatim-ish):** *"I attempted the full FSC install; it failed on Insurance and Wealth-Management dependencies a lending use case doesn't need. So I modelled the FSC lending profile directly — Person Account for the applicant, a custom Loan Application object — the correct scoping call regardless. In production on a licensed FSC org this maps onto the native objects (Person Account, Financial Account)."* → Shows FSC fluency + sound judgment under constraint. Stronger than a clean install.
+
+**Component 1 — data model + fields (self-contained spec for Claude Code build):**
+- Enable **Person Accounts** → applicant identity + PII (Name, DOB, TFN, Residential Address, Email, Phone).
+- Custom object **`Loan_Application__c`** (auto-number `LA-{0000}`), lookup → Person Account. Fields:
+
+| Field | Type | Class |
+|---|---|---|
+| Applicant (lookup → Person Account) | Lookup | — |
+| Declared Income | Currency | 🟠 self-reported |
+| Declared Expenses | Currency | 🟠 self-reported |
+| Loan Amount Requested | Currency | — |
+| Product Type | Picklist: `secured_business, secured_personal, unsecured_business, unsecured_personal` | — (feeds pre-filter `applies_to`) |
+
+> **⚠️ SEGMENT DERIVATION (pre-filter dependency):** `applies_to` is NOT a single field — it's **composite**: `Security_Type__c` (Secured/Unsecured) × `Borrower_Type__c` (Business/Consumer) → `secured_business` etc. Build `Security_Type__c` picklist on `Loan_Application__c` (was missing — the agent couldn't construct the pre-filter key without it). The policy-pre-filter reads this segment off the application: `applies_to IN ('secured_business','all')`. **Optional nicety:** formula field `Applies_To__c = LOWER(Security_Type__c & "_" & Borrower_Type__c)` so the agent reads one clean value. Case-sensitive filter values (lowercase convention).
+| Status | Picklist: New / In Review / Escalated / Decided | — |
+
+- **Permission set** `PrimeCapital_Credit_Analyst`: gates FLS on PII (Person Account) + Loan Application; agent inherits as invoking user (masking OFF for agents → perm-set FLS + zero-retention do the work).
+- **Classify** PII fields (compliance category / sensitivity) for governance.
+
+**Component 1 — FINAL field schema (built in Claude Code) + sensitivity tiering:**
+
+> **Principle (deck talking point):** not every field is equally sensitive. FLS-gate the **self-reported/verified financial figures** (what APP 11 actually cares about); leave **workflow metadata** (status, dates, flags) open — over-gating just makes the demo clunky with no compliance basis. *Gating what matters, not cargo-culting "lock everything," is the CRO signal.*
+
+| Field | Type | Tier |
+|---|---|---|
+| `Applicant__c` | Lookup(Account/Person Account) | — (record access via Account sharing; **PII fields ON the Person Account still need their own FLS**) |
+| `Loan_Amount_Requested__c` | Currency(16,2) | Operational |
+| `Loan_Purpose__c` | Picklist | Operational |
+| `Borrower_Type__c` | Picklist (Business/Consumer) | Operational — **drives RG 209 scope** (TP #15) |
+| `Security_Type__c` | Picklist (Secured/Unsecured) | Operational — **added for pre-filter** (see below) |
+| `Application_Status__c` | Picklist | Operational |
+| `Submission_Date__c` | Date | Operational |
+| `Declared_Annual_Revenue__c` / `Declared_Net_Income__c` | Currency | 🔴 Sensitive (self-reported) |
+| `Verified_Annual_Revenue__c` / `Verified_Net_Income__c` | Currency | 🔴 Sensitive (extracted, Action #3) |
+| `DSCR__c` | Number(5,2) | 🔴 Sensitive (derived, personal) |
+| `Financial_Disparity_Flag__c` | Checkbox | Operational (a flag, not the figures) |
+| `Financial_Disparity_Percent__c` | Percent | 🔴 Sensitive — **magnitude leaks the underlying financials** (sharp catch) |
+| `Grounding_Confidence__c` | Percent | Operational (feeds escalation) |
+| `Escalated__c` | Checkbox | Operational |
+| `Escalation_Reason__c` | Long Text | Operational — **kept generation-free** (deterministic string, not a PII-leak vector) |
+| `Credit_Memo_Draft__c` | Long Text (32k) | 🔴 Sensitive (narrates applicant financials) |
+
+**🎁 DECK TRADE-OFF — memo as field vs file:** *"For the demo the memo draft is a long-text field. In production I'd persist it as a **versioned file (ContentVersion)** linked to the application — independently permissioned, with a proper audit history of each draft. A field can't version or separately secure the document; a file can."* (Note: can't custom-lookup to ContentDocument — files link via ContentDocumentLink, not a lookup field.)
+
+**⚠️ DISPARITY LOGIC FIX (direction matters):** `abs()` hides *which way* the gap goes — overstating vs understating income are opposite risk stories. Responsible lending guards against **overstatement** (claiming more capacity than documents support). Corrected logic:
+- `Financial_Disparity_Percent__c` = **signed**: `(declared − verified) / verified` → `+` overstated 🚩, `−` understated 🟢.
+- `Financial_Disparity_Flag__c` = true **only when declared > verified by > threshold** (overstatement only; understatement doesn't trip it).
+- *Deck line:* "I flag material overstatement specifically — that's what responsible-lending verification guards against; understatement isn't a risk signal."
+
+**✅ COMPONENT 1 BUILT (Claude Code, deployed) — learnings from real deploy failures:**
+- **🎁 Metadata API deploys grant ZERO implicit FLS — even to Admin** (unlike the Setup UI wizard). Proven: before assignment, the System Admin saw only **6 of 17** fields (the required ones); after the permission-set-group assignment, all 17 unlocked. → **Reproduce LIVE in the demo** — provable least-privilege, not a claim. Strongest single moment in the demo.
+- **🎁 Required fields bypass FLS** — access is inseparable from object access; they can't appear in a permission set's fieldPermissions (this was the first deploy error). Granular-probe answer.
+- **Design: two permission sets in a group** — `Loan Application Base` (operational) + `Loan Application Sensitive Financials` (financial PII), grouped as `Credit Analyst`. Rationale = separation of duties / need-to-know tiering (grant Base wide, Sensitive narrow). Be ready for "why split them?"
+  - **Why two (locked):** the split is **role separation across the org, NOT junior-vs-senior.** Both tiers go to *every* credit analyst — they need the financial fields to do the job. The split lets **non-credit roles** (ops, support, read-only auditors) get Base without the financial PII; keeps least-privilege-by-default (new users = Base only; Sensitive is a deliberate, auditable grant).
+  - **No separate senior-analyst PSG** — seniority is NOT a field-access tier. The analyst needs all these fields. Seniority = the **escalation path** (low confidence / disparity → route memo + evidence to senior), which is Component 2/3 routing logic, not FLS.
+  - *Deck line:* "Both tiers go to credit analysts — they need the financial fields. The split is so non-credit roles get operational fields without financial PII. Seniority is handled by the escalation path, not field access."
+- Sensitive fields classified natively: Security Classification = Restricted, Compliance Category = PII (Data Classification section).
+
+**⏳ OPEN THREAD → Component 2/3:** `Financial_Disparity_Flag__c` / `_Percent__c` are currently plain stored fields — the **deterministic Flow/Apex calc** (signed %, overstatement-only flag, divide-by-zero guard) is NOT yet built. Wire it when building the extraction → comparison flow.
+
+**Component 2a — Credit Check object (Equifax/CRI persistence) — tonight's light build:**
+
+> **What it represents:** the *stored result of one Equifax call* (the receipt/snapshot), NOT the live API call. The Apex callout action is built later; this is just the filing cabinet.
+> **Naming principle:** plain-English labels (analysts + panel read them cold); where a word is a compliance term of art (enquiry, retention), keep it in help text.
+
+- Object **`Credit_Check__c`** (label "Credit Check"), **master-detail → `Loan_Application__c`** (owned by the assessment; inherits parent sharing).
+  - **🎁 Master-detail + cascade vs audit (deck reconciliation):** two lifecycle phases — *during retention* the app is NOT deleted (governance/policy keeps it → audit trail intact); *at retention end* the app is deleted → **cascade removes CRI + all children together** = clean Part IIIA disposal. Cascade isn't accidental data loss; it's the scheduled-destruction mechanism. Precision: **master-detail = the *how*** (no orphans when deletion happens); **retention policy = the *when*** (deletion only on schedule). Together = "retain then destroy."
+- Fields (minimise — decision-relevant only) + **classification** (CRI = one tier **stricter** than Component 1's Restricted → **MissionCritical**, because Part IIIA is a distinct legal regime, not just more sensitive data — the schema self-documents that):
+
+| Field | Type | Classification |
+|---|---|---|
+| `Credit_Score__c` | Number | 🔴🔴 MissionCritical (core CRI) |
+| `Credit_Check_Reference__c` | Text | 🔴🔴 MissionCritical (help text: "bureau enquiry reference") |
+| `Full_Credit_Report__c` | Long Text (optional/controlled) | 🔴🔴 MissionCritical (full payload = most exposure) |
+| `Credit_Check_Date__c` | DateTime | Operational (audit metadata) |
+| `Delete_After_Date__c` | Date | Operational (help text: "Part IIIA retention expiry") |
+| `Is_Latest__c` | Checkbox | Operational |
+
+  - *Panel line:* "CRI fields are MissionCritical — one tier above ordinary financial PII — because Part IIIA is a distinct legal regime, not just more sensitive data. The classification makes that visible in the schema so credit data can't be mistaken for a normal financial field."
+- **Own permission set `Loan Application CRI`** — separate from Base/Sensitive because Part IIIA credit reporting info has its own access rules; even an analyst's CRI access is a distinct, auditable grant.
+  - **DECISION (locked): include CRI in the `Credit_Analyst` PSG** — at PrimeCapital, consumer-lending analysts need CRI to do the job, so bundle it for one-assignment convenience. Kept as its own *permission set* (component) so the grant is still a discrete, auditable artifact even inside the group.
+  - **Future-separation trigger (line for deck + build):** *if* a role emerges that does NOT need CRI — **business/commercial-only analysts** (Part IIIA = consumer credit; different regime), **trainee/intake/QA** roles, or **consent-gap** cases — split `Loan Application CRI` into its own PSG (`Credit_Analyst_CRI`) so CRI becomes a separate grant. The permission-set boundary already exists, so this is a low-cost change.
+  - **Panel framing:** "Most consumer-lending analysts need CRI, so I bundled it — but kept it a distinct permission set. If a non-CRI role appears (business-only, trainee, consent-gap), I separate it into its own group so Part IIIA access stays provable. The seam is already there."
+
+**🎁 INSERT-ONLY decision (deck):** each Equifax pull = a **new immutable record**, never upsert/overwrite.
+- *Why:* each pull is a distinct **auditable event** — you must reconstruct what the decision was based on. Overwriting destroys that (June pull erases the March one → can't answer "what did you see when you approved loan #123?").
+- *Find "current"* by latest Report Retrieved Date (or `Is_Latest__c`), never by overwriting.
+
+**🎁 "Why a record every time? Credit doesn't change often" (anticipated Q — defense):**
+- Reframe: *not storing the score repeatedly — recording each **enquiry** as an event.* Even with an identical score, two pulls differ: different timestamp, consent, purpose, Equifax enquiry reference; each is a **hard enquiry** that legally occurred.
+- Cost/enquiry-harm is managed by **when you call** (pull once per assessment, reuse — avoid redundant hard enquiries), NOT by how you store. Two axes: *when to call* (efficiency) vs *how to store* (auditability).
+- *Line:* "The score may not change, but each enquiry is a separate legal event with its own consent, timestamp and bureau reference. Overwriting would destroy the Part IIIA audit trail. I control cost by not re-pulling within an assessment — but never collapse two real enquiries into one record."
+
+**🎁 FIELD HISTORY = wrong reflex here (deck):** records are insert-only → nothing changes → field history has nothing to track. The Part IIIA concern is **access** (who *viewed* CRI) → handled by Event Monitoring / access log, and **who pulled** → the callout's custom log. Use field history ONLY on retention/destruction fields (to evidence disposal on schedule).
+- ⏳ Component 2 task: **access log** (who pulls AND who views CRI) — separate from this object.
+
+**Component 2a-log — CRI Access Log object (tonight: schema only):**
+- Object **`CRI_Access_Log__c`** (label "CRI Access Log"). Fields: `Credit_Check__c` (Lookup → Credit Check), `Loan_Application__c` (Lookup), `Access_Type__c` (Picklist: Pull/View), `Accessed_By__c` (Lookup → User), `Access_Timestamp__c` (DateTime).
+- **Insert-only** (same platform-enforced pattern as Credit Check: object Edit=false, Delete=false; field Edit=true for insert). FLS on `Loan Application CRI` permission set.
+- **🎁 Lookup, NOT master-detail (deliberate contrast):** Credit Check = master-detail (cascades at retention end — it's part of the assessment). Access Log = **Lookup** → must **survive** even if the app/credit-check is deleted. An audit trail that vanishes with the thing it audits is worthless. *Panel line:* "The audit trail is decoupled from what it audits at BOTH levels — transaction (Platform Events) and data model (lookup, not master-detail) — so the operation it records can't destroy it."
+- **🎁 Platform Event for rollback-survival (decision — build in 2b):** a synchronous log DML dies if the main transaction rolls back. Write the log via a **Platform Event with `Publish Immediately`** — immediate-publish events commit **independently of the transaction**, so the log survives a rollback. (`Publish After Commit` and `@future`/Queueable do NOT survive a pre-commit rollback.) Honest caveat: immediate-publish = *decoupled + retried*, not literally unloseable (the subscriber's insert is its own transaction). Build the event + subscriber in **Component 2b** alongside the Equifax callout (the publisher) — wiring the event before its publisher exists is backwards. Tonight = object only.
+
+**🎁 STRUCTURAL IMMUTABILITY (deck gem — from the build):** insert-only is enforced by the **permission model, not convention/Apex.** Two levers: **object-level Edit = false** → no UPDATE DML can ever happen (platform rejects it); **field-level Edit = true** → values can still be set at INSERT. Combined = insert allowed, update impossible, no code. Delete also withheld (records leave only via parent cascade at retention end). *Line:* "Immutability is structural, not conventional — the permission set grants no object Edit, so the platform physically refuses any update to a credit-check record. Proof is live: I try to update one and Salesforce rejects it." Upgrades the story from "we don't update" to "we can't."
+- **⚠️ CAVEAT (must state — don't overclaim):** `Modify All Data` / `Modify All` **bypasses** object-level Edit (admin update succeeded in test). So immutability holds for the **operational (analyst) population**, with the super-user bypass being a **deliberately-restricted, audited exception**. *Line:* "Insert-only holds for normal users; it's overridden by Modify All Data, which is exactly why that permission is tightly held and audited — you don't design against your own break-glass admin, you audit them." (Stronger + honest vs "nobody can update it.")
+- **Detail (User-lookup lifecycle):** a lookup to User can only be `SetNull` on delete (users are deactivated, never deleted), which forces the field optional. Bonus: the access log **survives** its subject — if the accessing user is deactivated, the log keeps a null user ref rather than being deleted. Audit outlives its subjects.
+- **⏳ TASK (light, ~15 min — promotes "open thread" to action): non-admin insert-only PROOF.** Create a test user with the `Credit_Analyst` PSG (NO Modify All Data) → as that user, insert a Credit Check / Access Log (succeeds) → attempt update (**platform rejects**) → screenshot/record. This is the *demonstrable* version (like the 6→17 reveal) and validates BOTH CRI objects at once. Currently only *configured*, not *proven*.
+
 - [ ] Tag each policy PDF with a single pre-filter value (no arrays — one value per chunk): e.g. `applies_to = secured_business | ... | all`; filter with `IN (...)`.
 - [ ] **Verify in org** which operators the agent retriever UI exposes (IN? nested groups?) → decides pattern A (composite + IN) vs B (separate fields + nested OR).
 - [ ] Likely need a **custom DLO/DMO schema** to expose those metadata fields as filterable (managed Data Library may not — verify in org).
+- [ ] **Ingest policy PDFs (verified path — NOT CRM ContentDocument streams):** PDFs → external blob store (**S3** / Azure / GCS) → Data Cloud → **Data Lake Objects → New → From External Files** → **UDLO** → map to **UDMO** → search index. Requires an S3 bucket + connection + file-notification pipeline (JWT/cert auth) — this is MEDIUM effort, not light. When creating the UDMO, **DESELECT "create search index config with system defaults"** — configure chunking (Docling/section-aware) + hybrid + `applies_to` pre-filter yourself (that control IS the showcase). *(Instinct to use UDMO was correct; ingesting Content* objects as CRM streams = wrong object shape, metadata not chunk-able content.)*
+- [ ] **Seed 3–4 SCENARIO apps for the demo** (tomorrow, after disparity calc + pre-filter exist so they actually trigger): (1) LA-0001 = disparity/overstatement ✓ built; (2) **clean app** (declared ≈ verified, strong DSCR, high score → no escalation); (3) **low-confidence app** (thin data → escalation fires); (4) **different segment** (e.g. `unsecured_personal` → proves pre-filter returns DIFFERENT policy — needed for RAG showcase; one app can't demo pre-filtering). Each engineered to hit a specific agent path.
+  - *Gotcha (hand-built seed data):* org has State/Country picklists enabled → use `PersonMailingStateCode` / `PersonMailingCountryCode`, NOT the plain-text fields (rejected otherwise).
 - [ ] Parse policy PDFs with **Docling / LLM-based visual pre-processing** (handles tables) → **section-aware** chunking → build search index → custom retriever with filters.
 - [ ] Build **applicant profile object** with PII fields → lock with **permission sets** (field-level security; agent inherits as invoking user) → classify fields by compliance/sensitivity for governance. (Note: agent masking is OFF — protection = perm sets + zero-retention, not masking.)
 - [ ] **Keep Equifax/CRI OUT of the search index (Part IIIA):** runtime Apex fetch → prompt for that transaction; NO Data Cloud DMO feeding a retriever. **Persist = YES (required for audit/explainability), but controlled:** permission-set-gated custom object (FLS + `with sharing`) on the applicant's credit record; minimise fields (score, key attrs, enquiry ref, timestamp); **retention aligned to Part IIIA** (per-type periods + auto destroy/de-identify) + bank record policy; **log who pulls AND who views** CRI (Trust Layer audit won't cover the Apex path). Never indexed. Verify retriever source = policy index only. *(Exact retention period + raw-vs-minimised = policy call → state assumption / clarify.)*
