@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Credit Analyst</label>
+    <description>One group per Credit Analyst user. Bundles one permission set per object — add a new component here for future objects (e.g. Equifax/CRI) without touching existing assignments.</description>
+    <permissionSets>Loan_Application_Base</permissionSets>
+    <permissionSets>Loan_Application_Sensitive_Financials</permissionSets>
+</PermissionSetGroup>
