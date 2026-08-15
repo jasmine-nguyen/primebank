@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label>Loan Application CRI</label>
-    <description>Create+Read only on Credit_Check__c (no Edit/Delete — enforces insert-only) plus FLS on its non-required fields. Part IIIA credit-reporting access, kept as its own discrete grant separate from Base/Sensitive Financials.</description>
+    <label>Credit Check</label>
+    <description>Create+Read only on Credit_Check__c and Credit_Check_Log__c (no Edit/Delete — insert-only) plus FLS on their fields. Part IIIA credit-reporting access, kept as its own discrete grant separate from Base/Sensitive Financials.</description>
     <objectPermissions>
         <object>Credit_Check__c</object>
         <allowCreate>true</allowCreate>
@@ -21,7 +21,7 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
-        <object>CRI_Access_Log__c</object>
+        <object>Credit_Check_Log__c</object>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>false</allowEdit>
@@ -30,17 +30,17 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <fieldPermissions>
-        <field>CRI_Access_Log__c.Credit_Check__c</field>
+        <field>Credit_Check_Log__c.Credit_Check__c</field>
         <editable>true</editable>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>CRI_Access_Log__c.Loan_Application__c</field>
+        <field>Credit_Check_Log__c.Loan_Application__c</field>
         <editable>true</editable>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>CRI_Access_Log__c.Accessed_By__c</field>
+        <field>Credit_Check_Log__c.Accessed_By__c</field>
         <editable>true</editable>
         <readable>true</readable>
     </fieldPermissions>

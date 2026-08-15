@@ -6,7 +6,7 @@
     <externalId>false</externalId>
     <label>Accessed By</label>
     <referenceTo>User</referenceTo>
-    <relationshipLabel>CRI Access Logs</relationshipLabel>
-    <relationshipName>CRI_Access_Logs</relationshipName>
+    <relationshipLabel>Credit Check Logs</relationshipLabel>
+    <relationshipName>Credit_Check_Logs</relationshipName>
     <type>Lookup</type>
 </CustomField>

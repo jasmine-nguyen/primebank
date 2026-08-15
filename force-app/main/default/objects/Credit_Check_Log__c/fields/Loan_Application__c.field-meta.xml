@@ -6,7 +6,7 @@
     <externalId>false</externalId>
     <label>Loan Application</label>
     <referenceTo>Loan_Application__c</referenceTo>
-    <relationshipLabel>CRI Access Logs</relationshipLabel>
-    <relationshipName>CRI_Access_Logs</relationshipName>
+    <relationshipLabel>Credit Check Logs</relationshipLabel>
+    <relationshipName>Credit_Check_Logs</relationshipName>
     <type>Lookup</type>
 </CustomField>

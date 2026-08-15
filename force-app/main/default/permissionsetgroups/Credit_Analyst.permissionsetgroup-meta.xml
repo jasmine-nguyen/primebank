@@ -4,5 +4,5 @@
     <description>One group per Credit Analyst user. Bundles one permission set per object — add a new component here for future objects (e.g. Equifax/CRI) without touching existing assignments.</description>
     <permissionSets>Loan_Application_Base</permissionSets>
     <permissionSets>Loan_Application_Sensitive_Financials</permissionSets>
-    <permissionSets>Loan_Application_CRI</permissionSets>
+    <permissionSets>Credit_Check</permissionSets>
 </PermissionSetGroup>
