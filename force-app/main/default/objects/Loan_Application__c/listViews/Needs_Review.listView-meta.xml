@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Needs_Review</fullName>
+    <columns>NAME</columns>
+    <columns>Applicant__c</columns>
+    <columns>Loan_Amount_Requested__c</columns>
+    <columns>Security_Type__c</columns>
+    <columns>Borrower_Type__c</columns>
+    <columns>Application_Status__c</columns>
+    <columns>Financial_Disparity_Flag__c</columns>
+    <columns>Submission_Date__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Application_Status__c</field>
+        <operation>equals</operation>
+        <value>New,In_Review</value>
+    </filters>
+    <label>Needs Review</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

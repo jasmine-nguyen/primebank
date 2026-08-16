@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#0B3B60</headerColor>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <description>Credit analyst workspace for PrimeCapital Bank: loan applications, applicants, and the credit checks pulled against them. Record context from a Loan Application is what launches an Agentforce session.</description>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <label>PrimeCapital Lending</label>
+    <navType>Standard</navType>
+    <tabs>standard-home</tabs>
+    <tabs>Loan_Application__c</tabs>
+    <tabs>Applicants</tabs>
+    <tabs>Credit_Check__c</tabs>
+    <uiType>Lightning</uiType>
+</CustomApplication>

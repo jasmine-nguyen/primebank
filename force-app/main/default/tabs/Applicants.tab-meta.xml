@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Person Account applicants. Backed by the Applicants Lightning app page rather than the standard Accounts tab, so business accounts never appear.</description>
+    <flexiPage>Applicants</flexiPage>
+    <label>Applicants</label>
+    <motif>Custom11: Users</motif>
+</CustomTab>

@@ -1,8 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>Loan Application Base</label>
-    <description>Object CRUD (no Delete) and Operational-tier field access for Loan_Application__c. Sensitive-PII fields live in Loan_Application_Sensitive_Financials, composed together via the Credit_Analyst permission set group.</description>
+    <description>Object CRUD (no Delete) and Operational-tier FLS for Loan_Application__c, plus the PrimeCapital Lending app and tabs. Account+Contact Read are dependencies of the Applicant__c Person Account lookup. Sensitive PII: Loan_Application_Sensitive_Financials.</description>
     <hasActivationRequired>false</hasActivationRequired>
+    <applicationVisibilities>
+        <application>PrimeCapital_Lending</application>
+        <visible>true</visible>
+    </applicationVisibilities>
+    <tabSettings>
+        <tab>Loan_Application__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Applicants</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <classAccesses>
+        <apexClass>ApplicantListController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <objectPermissions>
+        <object>Contact</object>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <object>Account</object>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
     <objectPermissions>
         <object>Loan_Application__c</object>
         <allowCreate>true</allowCreate>

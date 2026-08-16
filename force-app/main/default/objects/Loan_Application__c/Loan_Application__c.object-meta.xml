@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Org default record page for the PrimeCapital Lending app.</comment>
+        <content>Loan_Application_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+    </actionOverrides>
+    <compactLayoutAssignment>Loan_Application_Compact</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
     <description>Tracks an SMB/mid-market credit application through analyst review: applicant link, self-reported vs verified financials, policy grounding confidence, credit memo draft, and escalation.</description>
     <enableActivities>true</enableActivities>

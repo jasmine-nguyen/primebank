@@ -2,6 +2,10 @@
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>Credit Check</label>
     <description>Create+Read only on Credit_Check__c and Credit_Check_Log__c (no Edit/Delete — insert-only) plus FLS on their fields. Part IIIA credit-reporting access, kept as its own discrete grant separate from Base/Sensitive Financials.</description>
+    <tabSettings>
+        <tab>Credit_Check__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
     <objectPermissions>
         <object>Credit_Check__c</object>
         <allowCreate>true</allowCreate>

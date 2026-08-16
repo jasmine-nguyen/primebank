@@ -1,0 +1,29 @@
+<template>
+    <lightning-card title="Applicants" icon-name="standard:person_account">
+        <span slot="actions" class="slds-text-body_small slds-text-color_weak">{countLabel}</span>
+
+        <template lwc:if={isLoading}>
+            <div class="slds-p-around_large slds-align_absolute-center">
+                <lightning-spinner alternative-text="Loading applicants" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template lwc:if={hasRows}>
+            <lightning-datatable
+                key-field="id"
+                data={rows}
+                columns={columns}
+                hide-checkbox-column
+                resize-column-disabled
+            ></lightning-datatable>
+        </template>
+
+        <template lwc:if={isEmpty}>
+            <p class="slds-p-around_medium slds-text-color_weak">No applicants yet.</p>
+        </template>
+
+        <template lwc:if={error}>
+            <p class="slds-p-around_medium slds-text-color_error">{error}</p>
+        </template>
+    </lightning-card>
+</template>

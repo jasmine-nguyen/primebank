@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Credit_Check_Compact</fullName>
+    <fields>Loan_Application__c</fields>
+    <fields>Credit_Score__c</fields>
+    <fields>Credit_Check_Date__c</fields>
+    <fields>Is_Latest__c</fields>
+    <label>Credit Check Compact</label>
+</CompactLayout>
