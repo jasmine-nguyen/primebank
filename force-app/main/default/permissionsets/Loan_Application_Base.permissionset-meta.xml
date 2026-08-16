@@ -19,6 +19,14 @@
         <apexClass>ApplicantListController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>StatementExtractionService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>StatementExtractionQueueable</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <objectPermissions>
         <object>Contact</object>
         <allowCreate>false</allowCreate>
@@ -68,6 +76,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <field>Loan_Application__c.Escalation_Reason__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Loan_Application__c.Needs_Financial_Review__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Loan_Application__c.Statement_Extraction_Notes__c</field>
         <editable>true</editable>
         <readable>true</readable>
     </fieldPermissions>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Needs_Financial_Review__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Set by the statement extraction intake automation when an uploaded financial statement could not be read confidently enough to trust — low model confidence, a missing figure, or an unparseable response. Deliberately separate from Escalated__c: that flag means the agent routed an assessment to a senior analyst, whereas this one means intake could not produce a verified figure in the first place. Kept at Internal classification because it reveals nothing about the underlying financials.</description>
+    <externalId>false</externalId>
+    <label>Needs Financial Review</label>
+    <securityClassification>Internal</securityClassification>
+    <trackHistory>true</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Statement_Extraction_Notes__c</fullName>
+    <description>Audit trail for statement extraction: timestamp, ContentDocument Id, file title, model confidence, the write/reject outcome, and the model's own source_notes. Newest entry first. Internal rather than Restricted — it records which figures were accepted and why, not the figures themselves.</description>
+    <externalId>false</externalId>
+    <label>Statement Extraction Notes</label>
+    <length>5000</length>
+    <securityClassification>Internal</securityClassification>
+    <type>LongTextArea</type>
+    <visibleLines>8</visibleLines>
+</CustomField>
