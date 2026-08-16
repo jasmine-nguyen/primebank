@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <assignments>
+        <name>Clear_Disparity</name>
+        <label>Clear Disparity</label>
+        <locationX>314</locationX>
+        <locationY>458</locationY>
+        <description>Guard path. Verified revenue is null or zero, so no disparity can be computed — null the percent and clear the flag rather than leaving a stale value from a previous calculation.</description>
+        <assignmentItems>
+            <assignToReference>$Record.Financial_Disparity_Percent__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>varNullPercent</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Financial_Disparity_Flag__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_Disparity</name>
+        <label>Set Disparity</label>
+        <locationX>50</locationX>
+        <locationY>458</locationY>
+        <description>Writes the computed disparity to stored fields. TODO Component 2b: publish disparity to audit log via Platform Event — hook in here, alongside the Equifax callout that publishes the access log.</description>
+        <assignmentItems>
+            <assignToReference>$Record.Financial_Disparity_Percent__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fmlDisparityPercent</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Financial_Disparity_Flag__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fmlExceedsThreshold</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <constants>
+        <name>DISPARITY_THRESHOLD_PERCENT</name>
+        <dataType>Number</dataType>
+        <description>Overstatement threshold, in percent, at or above which the disparity flag is raised. Single tunable knob for this control. A production build would externalise this to Custom Metadata so it can be changed per credit policy without editing the flow.</description>
+        <value>
+            <numberValue>20.0</numberValue>
+        </value>
+    </constants>
+    <decisions>
+        <name>Verified_Revenue_Usable</name>
+        <label>Verified Revenue Usable?</label>
+        <locationX>182</locationX>
+        <locationY>350</locationY>
+        <description>Divide-by-zero and null guard. Runs before any arithmetic — the disparity formula divides by verified revenue, so this must be settled first.</description>
+        <defaultConnector>
+            <targetReference>Clear_Disparity</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Usable Verified Revenue</defaultConnectorLabel>
+        <rules>
+            <name>Has_Verified_Revenue</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Verified_Annual_Revenue__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Verified_Annual_Revenue__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Disparity</targetReference>
+            </connector>
+            <label>Has Verified Revenue</label>
+        </rules>
+    </decisions>
+    <description>Deterministic credit control: computes the signed declared-vs-verified revenue disparity and raises the overstatement flag. Stored, not a formula field — a formula recalculates on every read, leaving no auditable value as at assessment time. Runs before save, so it writes to the same record with no DML. TODO Component 2b: publish disparity to audit log via Platform Event.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>fmlDisparityPercent</name>
+        <dataType>Number</dataType>
+        <description>Signed disparity as a percentage of verified revenue. Positive means the applicant overstated. BLANKVALUE treats a missing declared figure as zero, which reads as a 100% understatement. Rounded to 2dp to match the field scale. Only evaluated on the guarded path, so the divisor is never null or zero.</description>
+        <expression>ROUND((BLANKVALUE({!$Record.Declared_Annual_Revenue__c}, 0) - {!$Record.Verified_Annual_Revenue__c}) / {!$Record.Verified_Annual_Revenue__c} * 100, 2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>fmlExceedsThreshold</name>
+        <dataType>Boolean</dataType>
+        <description>Overstatement only. A negative disparity can never satisfy a >= comparison against a positive threshold, so understatement is never flagged.</description>
+        <expression>{!fmlDisparityPercent} &gt;= {!DISPARITY_THRESHOLD_PERCENT}</expression>
+    </formulas>
+    <interviewLabel>Loan Application Financial Disparity Calc {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Loan Application Financial Disparity Calc</label>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Verified_Revenue_Usable</targetReference>
+        </connector>
+        <object>Loan_Application__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>varNullPercent</name>
+        <dataType>Number</dataType>
+        <description>Intentionally left with no value. Assigning an empty Number variable is the only way to write null to a numeric field in Flow.</description>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>2</scale>
+    </variables>
+</Flow>

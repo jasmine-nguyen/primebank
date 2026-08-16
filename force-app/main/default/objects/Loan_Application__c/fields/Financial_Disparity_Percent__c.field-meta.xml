@@ -2,11 +2,12 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Financial_Disparity_Percent__c</fullName>
     <complianceGroup>PII</complianceGroup>
-    <description>Magnitude of declared-vs-verified variance. Classified Restricted (not just Internal like the flag) because the percentage reveals the scale of the underlying financials even without the raw figures.</description>
+    <description>Signed magnitude of declared-vs-verified variance, written by the Loan Application Financial Disparity Calc flow — positive is overstatement. Classified Restricted (not just Internal like the flag) because the percentage reveals the scale of the underlying financials even without the raw figures. Precision 8 (not 5) so a declared figure more than 10x the verified one cannot overflow the field and fail the save.</description>
     <externalId>false</externalId>
     <label>Financial Disparity Percent</label>
-    <precision>5</precision>
+    <precision>8</precision>
     <scale>2</scale>
     <securityClassification>Restricted</securityClassification>
+    <trackHistory>true</trackHistory>
     <type>Percent</type>
 </CustomField>
