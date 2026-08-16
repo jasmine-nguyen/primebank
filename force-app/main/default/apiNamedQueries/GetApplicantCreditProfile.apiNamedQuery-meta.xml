@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApiNamedQuery xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiNamedQueryParameters>
+        <description>The record Id of the applicant&apos;s Person Account (Account.Id), taken from the Applicant field on the loan application.</description>
+        <parameterLabel>applicantid</parameterLabel>
+        <parameterName>applicantid</parameterName>
+    </apiNamedQueryParameters>
+    <apiVersion>67.0</apiVersion>
+    <body2>SELECT Id, Name, PersonBirthdate, PersonMailingAddress,
+       (SELECT Loan_Amount_Requested__c, Declared_Annual_Revenue__c, Verified_Annual_Revenue__c,
+               Security_Type__c, Borrower_Type__c
+        FROM Loan_Applications__r)
+FROM Account
+WHERE Id = :applicantId</body2>
+    <description>Returns an applicant&apos;s profile: personal details plus all related loan applications (loan amount, declared vs verified revenue, security type, borrower type). Use to load the full applicant profile for a loan assessment.</description>
+    <masterLabel>Get Applicant Credit Profile</masterLabel>
+</ApiNamedQuery>
