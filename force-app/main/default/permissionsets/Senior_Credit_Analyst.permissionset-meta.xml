@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Senior Credit Analyst</label>
+    <description>Grants Can_Clear_Escalation, the sole permission that lets a user close an escalation on a Loan Application. Held on top of the Credit Analyst group, never inside it — the whole point is that an ordinary analyst does not have it.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>Can_Clear_Escalation</name>
+    </customPermissions>
+</PermissionSet>

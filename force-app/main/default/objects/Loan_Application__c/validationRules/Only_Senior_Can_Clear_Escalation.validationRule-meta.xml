@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Only_Senior_Can_Clear_Escalation</fullName>
+    <active>true</active>
+    <description>Separation of duties: only a holder of Can_Clear_Escalation may close an escalation. Blocks the true-to-false transition only. Enforced here, not in the flow, because a flow governs only its own path — a direct or API edit would bypass it.</description>
+    <errorConditionFormula>AND(
+    ISCHANGED(Escalated__c),
+    PRIORVALUE(Escalated__c),
+    NOT($Permission.Can_Clear_Escalation)
+)</errorConditionFormula>
+    <errorDisplayField>Escalated__c</errorDisplayField>
+    <errorMessage>Only a senior credit analyst can close an escalation. This file was routed for senior review; ask the assigned owner to clear it.</errorMessage>
+</ValidationRule>

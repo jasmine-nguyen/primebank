@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Grounding_Signals_Missing__c</fullName>
+    <description>Names the evidence signals absent from this application at the time confidence was last computed, e.g. &quot;verified financials; current credit check&quot;. Written by the grounding confidence flow so the escalation reason and the agent&apos;s evidence trail can state WHY confidence is low without re-deriving the signal logic in a second place. Empty when confidence is High. Records which evidence is missing, never any figure, so it stays Internal rather than Restricted.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Which evidence was missing when confidence was last computed</inlineHelpText>
+    <label>Grounding Signals Missing</label>
+    <length>255</length>
+    <securityClassification>Internal</securityClassification>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

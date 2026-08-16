@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Current_Credit_Checks__c</fullName>
+    <description>Count of Credit Checks on this application currently marked Is_Latest__c. Exists so the grounding confidence calc can see the bureau signal from a before-save flow, which cannot query child records. Recalculates automatically when CreditBureauService inserts a check and flips the previous one, which re-fires the confidence flow and refreshes the band without any extra automation. Normally 0 or 1 — a value above 1 means the Is_Latest__c pointer has been left inconsistent.</description>
+    <externalId>false</externalId>
+    <label>Current Credit Checks</label>
+    <summaryFilterItems>
+        <field>Credit_Check__c.Is_Latest__c</field>
+        <operation>equals</operation>
+        <value>true</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Credit_Check__c.Loan_Application__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <type>Summary</type>
+</CustomField>

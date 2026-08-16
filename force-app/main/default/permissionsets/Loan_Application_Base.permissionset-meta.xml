@@ -89,4 +89,14 @@
         <editable>true</editable>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <field>Loan_Application__c.Grounding_Signals_Missing__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Loan_Application__c.Current_Credit_Checks__c</field>
+        <editable>false</editable>
+        <readable>true</readable>
+    </fieldPermissions>
 </PermissionSet>

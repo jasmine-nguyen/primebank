@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Runs a credit bureau (Equifax CRI) enquiry for a Loan Application. Stores the result as a new immutable Credit Check marked as the latest, marks any previous check as no longer latest, and records the access in the credit audit log. Use this when a credit score or bureau file is needed for an application and there is no current check, or when a fresh pull has been asked for.</description>
+    <developerName>Run_Credit_Bureau_Check</developerName>
+    <invocationTarget>CreditBureauService</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Run_Credit_Bureau_Check</localDeveloperName>
+    <masterLabel>Run Credit Bureau Check</masterLabel>
+    <progressIndicatorMessage>Running the credit bureau check…</progressIndicatorMessage>
+</GenAiFunction>

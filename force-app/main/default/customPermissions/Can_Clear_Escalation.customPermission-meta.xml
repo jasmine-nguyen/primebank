@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows a user to clear Escalated__c on a Loan Application. Held only by senior analysts — the junior who caused the escalation, and the agent acting for them, cannot hold it. An escalation its subject can withdraw is not a control.</description>
+    <isLicensed>false</isLicensed>
+    <label>Can Clear Escalation</label>
+</CustomPermission>

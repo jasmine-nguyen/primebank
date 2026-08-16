@@ -1,0 +1,78 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "varAlreadyEscalated" : {
+      "title" : "Already Escalated",
+      "description" : "True when this file was already escalated before the call, so nothing was changed. Say so rather than reporting a fresh escalation — the analyst needs to know the routing is not new.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "varConfidenceBand" : {
+      "title" : "Confidence Band",
+      "description" : "The confidence band as a word: High, Medium or Low. Use this rather than the raw number when explaining the outcome.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "varEscalated" : {
+      "title" : "Escalated",
+      "description" : "True when the application is now with a senior analyst. False means no trigger was met or the application could not be found — check the escalation reason before telling anyone the file is clear.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "varEscalationReason" : {
+      "title" : "Escalation Reason",
+      "description" : "The deterministic reason the file was routed, naming the confidence band and the specific missing evidence, plus any disparity as a separately labelled additional reason. Present this verbatim; do not paraphrase it into a credit opinion.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "varEvidenceTrail" : {
+      "title" : "Evidence Trail",
+      "description" : "The full evidence behind the decision: confidence and why it is what it is, declared and verified revenue, disparity, and the current bureau result. Present this to the analyst alongside the reason. Figures reading 'not provided' are genuinely absent, not zero.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "varGroundingConfidence" : {
+      "title" : "Grounding Confidence",
+      "description" : "The stored confidence value: 100 High, 50 Medium, 20 Low. Measures whether the evidence needed to assess the file is present, and says nothing about whether the loan is a good one.",
+      "lightning:type" : "lightning__numberType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "varOwnerName" : {
+      "title" : "New Owner",
+      "description" : "Name of the senior analyst the file was handed to. Empty when nothing was escalated.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "varSignalsMissing" : {
+      "title" : "Signals Missing",
+      "description" : "Semicolon-separated list of the evidence signals absent from the file, e.g. 'verified financials; current credit check'. Empty when nothing is missing. This is the WHY behind a low confidence band.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}
