@@ -18,6 +18,10 @@
         <apexClass>BureauResponse</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>CreditBureauClient</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <objectPermissions>
         <object>Credit_Check__c</object>
         <allowCreate>true</allowCreate>

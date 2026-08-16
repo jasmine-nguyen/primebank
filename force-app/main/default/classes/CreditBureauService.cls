@@ -42,37 +42,110 @@ public with sharing class CreditBureauService {
     @TestVisible
     private static CreditBureauClient client = new MockEquifaxClient();
 
-    /** What the caller gets back: enough to answer "did it work and what was the score". */
-    public class Result {
-        @InvocableVariable(label='Loan Application Id')
+    /**
+     * What the action is asked for.
+     *
+     * A wrapper rather than a bare List<Id> parameter, because these descriptions are the only
+     * thing an agent has to work out what to pass. A primitive input surfaces as an untyped list
+     * with no explanation, so the model has to guess; a described variable tells it exactly which
+     * record Id belongs here.
+     */
+    public class Request {
+        @InvocableVariable(
+            label='Loan Application Id'
+            description='Record Id of the Loan Application to run the credit bureau check for. This is the 18-character Id of the Loan Application record the user is viewing or has named, not the LA-0001 application number and not the applicant\'s Account Id.'
+            required=true
+        )
         public Id loanApplicationId;
 
-        @InvocableVariable(label='Credit Check Id')
+        public Request() {
+        }
+
+        public Request(Id loanApplicationId) {
+            this.loanApplicationId = loanApplicationId;
+        }
+    }
+
+    /** What the caller gets back: enough to answer "did it work and what was the score". */
+    public class Result {
+        @InvocableVariable(
+            label='Loan Application Id'
+            description='The Loan Application this result belongs to. Returned so a batch of results can be matched back to what was asked for.'
+        )
+        public Id loanApplicationId;
+
+        @InvocableVariable(
+            label='Credit Check Id'
+            description='Record Id of the Credit Check that was created and stored. Empty if the result could not be saved.'
+        )
         public Id creditCheckId;
 
-        @InvocableVariable(label='Credit Score')
+        @InvocableVariable(
+            label='Credit Score'
+            description='Credit score returned by the bureau, on a 0-1200 scale. Empty when the bureau could not score the file or the enquiry failed — treat an empty score as unknown, never as zero.'
+        )
         public Integer creditScore;
 
-        @InvocableVariable(label='Credit Check Reference')
+        @InvocableVariable(
+            label='Credit Check Reference'
+            description='The bureau enquiry reference for this pull, e.g. EQFX-CRI-20260816-194980. Quote this when referring to the enquiry.'
+        )
         public String creditCheckReference;
 
-        @InvocableVariable(label='Succeeded')
+        @InvocableVariable(
+            label='Succeeded'
+            description='True when the bureau returned a usable credit file and it was stored. False when the enquiry failed or the record could not be saved; check Status Message for the reason before relying on the score.'
+        )
         public Boolean succeeded = false;
 
-        @InvocableVariable(label='Status Message')
+        @InvocableVariable(
+            label='Status Message'
+            description='Plain-language outcome of the enquiry, such as Clean file, Thin file adverse, or the reason it failed. Use this to explain the result rather than restating the raw score.'
+        )
         public String statusMessage;
     }
 
     /**
-     * Entry point for Flow and, later, for an agent action. Not wired to any agent topic yet —
-     * that is a separate change.
+     * Entry point for Flow and for an agent action. Not wired to any agent topic yet — that is a
+     * separate change.
+     *
+     * Returns exactly one Result per Request, in the order they were given, including for
+     * applications that could not be found. Invocable callers match inputs to outputs by index,
+     * so a shorter list would silently misattribute results across a batch.
      */
     @InvocableMethod(
         label='Run Credit Bureau Check'
-        description='Pulls credit bureau (CRI) data for a loan application, stores it as a new immutable Credit Check marked as the latest, and publishes an access audit event.'
+        description='Runs a credit bureau (Equifax CRI) enquiry for a Loan Application. Stores the result as a new immutable Credit Check marked as the latest, marks any previous check as no longer latest, and records the access in the credit audit log. Use this when a credit score or bureau file is needed for an application and there is no current check, or when a fresh pull has been asked for.'
+        category='Credit Assessment'
     )
-    public static List<Result> run(List<Id> loanApplicationIds) {
-        return pull(loanApplicationIds);
+    public static List<Result> run(List<Request> requests) {
+        List<Result> results = new List<Result>();
+        if (requests == null || requests.isEmpty()) {
+            return results;
+        }
+
+        List<Id> applicationIds = new List<Id>();
+        for (Request request : requests) {
+            applicationIds.add(request == null ? null : request.loanApplicationId);
+        }
+
+        Map<Id, Result> byApplication = new Map<Id, Result>();
+        for (Result result : pull(applicationIds)) {
+            byApplication.put(result.loanApplicationId, result);
+        }
+
+        for (Id applicationId : applicationIds) {
+            Result result = byApplication.get(applicationId);
+            if (result == null) {
+                result = new Result();
+                result.loanApplicationId = applicationId;
+                result.statusMessage = applicationId == null
+                    ? 'No Loan Application Id was supplied.'
+                    : 'No Loan Application found for Id ' + applicationId + '.';
+            }
+            results.add(result);
+        }
+        return results;
     }
 
     /**

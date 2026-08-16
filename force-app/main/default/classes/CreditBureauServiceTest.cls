@@ -390,11 +390,45 @@ private class CreditBureauServiceTest {
         Loan_Application__c application = firstApplication();
 
         Test.startTest();
-        List<CreditBureauService.Result> results = CreditBureauService.run(new List<Id>{ application.Id });
+        List<CreditBureauService.Result> results = CreditBureauService.run(
+            new List<CreditBureauService.Request>{ new CreditBureauService.Request(application.Id) }
+        );
         Test.stopTest();
 
         Assert.areEqual(1, results.size(), 'The invocable should return one result per application');
         Assert.areEqual(715, results[0].creditScore, 'The invocable should surface the score to its caller');
         Assert.isNotNull(results[0].creditCheckId, 'The invocable should return the stored check Id');
+    }
+
+    /**
+     * Invocable callers pair inputs to outputs by index. A missing application must still occupy
+     * its slot, or a batch would attribute one application's credit result to another.
+     */
+    @IsTest
+    static void invocableReturnsOneResultPerRequestEvenWhenAnApplicationIsMissing() {
+        CreditBureauService.client = new StubClient(700, true);
+        Loan_Application__c application = firstApplication();
+
+        Test.startTest();
+        List<CreditBureauService.Result> results = CreditBureauService.run(
+            new List<CreditBureauService.Request>{
+                new CreditBureauService.Request(fakeId(9)),
+                new CreditBureauService.Request(application.Id)
+            }
+        );
+        Test.stopTest();
+
+        Assert.areEqual(2, results.size(), 'Every request must get a result slot');
+        Assert.isFalse(results[0].succeeded, 'An unknown application should report failure, not vanish');
+        Assert.isTrue(
+            results[0].statusMessage.contains('No Loan Application found'),
+            'The empty slot should say why: ' + results[0].statusMessage
+        );
+        Assert.isTrue(results[1].succeeded, 'The real application should still succeed in the same batch');
+        Assert.areEqual(
+            application.Id,
+            results[1].loanApplicationId,
+            'Results must stay aligned with the requests that produced them'
+        );
     }
 }
