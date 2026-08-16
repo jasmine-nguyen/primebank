@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Is_Latest__c</fullName>
     <defaultValue>false</defaultValue>
-    <description>No flip-previous-record-to-false logic yet — open thread for the future Apex callout component.</description>
+    <description>Marks the current bureau result for the application. CreditBureauService clears it on the previous Credit Check before inserting the new one, so history is retained and only the pointer moves. Set in system context: the object is granted Create-but-not-Edit to keep bureau results immutable for analysts, and the flip is an update.</description>
     <externalId>false</externalId>
     <label>Is Latest</label>
     <type>Checkbox</type>

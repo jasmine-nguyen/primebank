@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <complianceGroup>PII</complianceGroup>
+    <fullName>Credit_Check_Reference__c</fullName>
+    <description>Bureau enquiry reference, copied onto the log rather than read through the Credit_Check__c lookup. The lookup is SetNull, so after a rollback or a retention deletion it resolves to nothing and the row would record that someone accessed an unnamed something. Holding the reference as data is what makes this audit record self-contained.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Bureau enquiry reference as it was at the moment of access</inlineHelpText>
+    <label>Credit Check Reference</label>
+    <length>100</length>
+    <securityClassification>MissionCritical</securityClassification>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

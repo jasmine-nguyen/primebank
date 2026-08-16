@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <complianceGroup>PII</complianceGroup>
+    <fullName>Credit_Score__c</fullName>
+    <description>Score that was disclosed by this access, denormalised for the same self-containment reason as Credit_Check_Reference__c. Not required — a failed bureau call is still an access worth auditing, and it has no score.</description>
+    <externalId>false</externalId>
+    <label>Credit Score</label>
+    <precision>4</precision>
+    <scale>0</scale>
+    <securityClassification>MissionCritical</securityClassification>
+    <type>Number</type>
+</CustomField>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Announces that a credit bureau (CRI) record was accessed. Publish Behavior is Publish Immediately, not Publish After Commit: the event leaves the publishing transaction the moment it is published, so the subscriber writes the Credit_Check_Log__c audit row in its own transaction and the audit survives a rollback of the pull that caused it. After-commit would die with that rollback, which would defeat the purpose.</description>
+    <eventType>HighVolume</eventType>
+    <label>Credit Check Logged</label>
+    <pluralLabel>Credit Check Logged</pluralLabel>
+    <publishBehavior>PublishImmediately</publishBehavior>
+</CustomObject>

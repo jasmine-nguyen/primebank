@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>Credit Check</label>
-    <description>Create+Read only on Credit_Check__c and Credit_Check_Log__c (no Edit/Delete — insert-only) plus FLS on their fields. Part IIIA credit-reporting access, kept as its own discrete grant separate from Base/Sensitive Financials.</description>
+    <description>Create+Read only on Credit_Check__c and Credit_Check_Log__c (no Edit/Delete — insert-only) plus FLS, and Create on Credit_Check_Logged__e to publish audit events. Part IIIA access, separate from Base/Sensitive Financials.</description>
     <tabSettings>
         <tab>Credit_Check__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
+    <classAccesses>
+        <apexClass>CreditBureauService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>MockEquifaxClient</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>BureauResponse</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <objectPermissions>
         <object>Credit_Check__c</object>
         <allowCreate>true</allowCreate>
@@ -18,6 +30,15 @@
     <objectPermissions>
         <object>Loan_Application__c</object>
         <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <object>Credit_Check_Logged__e</object>
+        <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
@@ -45,6 +66,31 @@
     </fieldPermissions>
     <fieldPermissions>
         <field>Credit_Check_Log__c.Accessed_By__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Credit_Check_Log__c.Accessed_By_Username__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Credit_Check_Log__c.Credit_Check_Reference__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Credit_Check_Log__c.Credit_Score__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Credit_Check_Log__c.Loan_Application_Number__c</field>
+        <editable>true</editable>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <field>Credit_Check_Log__c.Purpose__c</field>
         <editable>true</editable>
         <readable>true</readable>
     </fieldPermissions>
