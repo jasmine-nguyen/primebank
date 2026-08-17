@@ -140,6 +140,7 @@
         <triggerType>RecordBeforeSave</triggerType>
     </start>
     <status>Active</status>
+    <triggerOrder>10</triggerOrder>
     <variables>
         <description>Intentionally left with no value. Assigning an empty Number variable is the only way to write null to a numeric field in Flow.</description>
         <name>varNullPercent</name>

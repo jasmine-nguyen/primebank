@@ -165,7 +165,7 @@
             <label>Profile Incomplete</label>
         </rules>
     </decisions>
-    <description>Deterministic grounding confidence: measures whether the evidence needed to assess this application is present, and never whether the application is any good. Stored as a band (100/50/20 on a Percent field), not a continuous score — the field renders as a percentage, so 100.00% reads as complete evidence. Runs before save, so it writes to the same record with no DML and cannot recurse. Order against the disparity flow is deliberately unconstrained: triggerOrder is rejected by FlowStart at v67, and it is not needed, because the two flows read and write disjoint field sets — neither consumes anything the other produces. TODO: could enrich confidence with retrieval-chunk-count once cleanly exposed.</description>
+    <description>Deterministic grounding confidence: measures whether the evidence needed to assess this application is present, and never whether the application is any good. Stored as a band (100/50/20 on a Percent field), not a continuous score — the field renders as a percentage, so 100.00% reads as complete evidence. Runs before save, so it writes to the same record with no DML and cannot recurse. Run order against the disparity flow is declared explicitly: disparity 10, this flow 20 (triggerOrder, GA since API v54, a top-level Flow element). No dependency requires it today — the two before-save flows write disjoint field sets, this one never reads a disparity field and the disparity flow never reads a confidence field — so order cannot currently change the outcome. It is declared anyway, so that if either flow later reads what the other writes, the order is already defined rather than incidental. TODO: could enrich confidence with retrieval-chunk-count once cleanly exposed.</description>
     <environments>Default</environments>
     <formulas>
         <description>The raw list with its trailing separator removed. Written to Grounding_Signals_Missing__c so the escalation reason and the agent evidence trail can name the gaps without re-deriving this logic in a second place.</description>
@@ -193,4 +193,5 @@
         <triggerType>RecordBeforeSave</triggerType>
     </start>
     <status>Active</status>
+    <triggerOrder>20</triggerOrder>
 </Flow>
