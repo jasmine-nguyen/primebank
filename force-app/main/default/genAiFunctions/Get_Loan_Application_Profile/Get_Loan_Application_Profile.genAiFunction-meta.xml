@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Returns a loan application with its applicant&apos;s details — loan amount, declared vs verified revenue, security type, borrower type, and applicant name. Use to load the full profile for a loan assessment or credit memo.</description>
+    <developerName>Get_Loan_Application_Profile</developerName>
+    <invocationTarget>GetLoanApplicationProfile_nquery.GetLoanApplicationProfile</invocationTarget>
+    <invocationTargetType>namedQuery</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Get_Loan_Application_Profile</localDeveloperName>
+    <masterLabel>Get Loan Application Profile</masterLabel>
+    <progressIndicatorMessage>Retrieving loan application and applicant profile…</progressIndicatorMessage>
+</GenAiFunction>

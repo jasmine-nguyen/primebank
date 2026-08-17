@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <activeVersionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_7</activeVersionIdentifier>
+    <description>Drafts a structured, cited credit-assessment memo from the applicant profile and applicable policy. Evidence assembly only — no lending decision. Use when the analyst asks to draft or generate a credit memo.</description>
+    <developerName>Generate_Credit_Memo</developerName>
+    <masterLabel>Generate Credit Memo</masterLabel>
+    <overridable>false</overridable>
+    <templateVersions>
+        <content># Applicant &amp; facility
+Applicant: {!$Input:varLoanApp.Applicant__r.FirstName} {!$Input:varLoanApp.Applicant__r.LastName}
+Borrower type: {!$Input:varLoanApp.Borrower_Type__c}
+Loan amount requested: {!$Input:varLoanApp.Loan_Amount_Requested__c}
+Security type: {!$Input:varLoanApp.Security_Type__c}
+Declared annual revenue: {!$Input:varLoanApp.Declared_Annual_Revenue__c}
+Verified annual revenue: {!$Input:varLoanApp.Verified_Annual_Revenue__c}
+Applicable credit policy (already retrieved and cited): {!$Input:varPolicy}
+
+# Write the memo in Markdown, with a ## heading for each section:
+Applicant &amp; Facility Summary — name, borrower type, loan amount, security type.
+Financial Position — state declared and verified revenue exactly as given above; never round or alter a figure. Where they differ, state both and flag the difference as an item for review.
+Policy Compliance Evidence — for each applicable requirement in the policy (DSCR, ICR, eligibility, thresholds), state what the policy requires with its citation alongside the corresponding figure above. Present as a factual comparison for the analyst — do not conclude approve or decline.
+Items for Analyst Attention — discrepancies, gaps, or points to verify.
+Sources — list the policy citations.
+
+# Rules:
+Ground every statement in the data provided. Do not add, infer, or invent anything.
+Reproduce all figures and citations exactly.
+Do not state or imply an approve/decline recommendation, a credit score, or a lending decision — that is the analyst&apos;s.
+If required data is missing, note it as a gap.
+
+</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>varLoanApp</apiName>
+            <definition>SOBJECT://Loan_Application__c</definition>
+            <masterLabel>varLoanApp</masterLabel>
+            <referenceName>Input:varLoanApp</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>varPolicy</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>varPolicy</masterLabel>
+            <referenceName>Input:varPolicy</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultVertexAIGeminiPro25</primaryModel>
+        <status>Published</status>
+        <versionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_1</versionIdentifier>
+    </templateVersions>
+    <templateVersions>
+        <content># Applicant &amp; facility
+Applicant: {!$Input:varLoanApp.Applicant__r.FirstName} {!$Input:varLoanApp.Applicant__r.LastName}
+Borrower type: {!$Input:varLoanApp.Borrower_Type__c}
+Loan amount requested: {!$Input:varLoanApp.Loan_Amount_Requested__c}
+Security type: {!$Input:varLoanApp.Security_Type__c}
+Declared annual revenue: {!$Input:varLoanApp.Declared_Annual_Revenue__c}
+Verified annual revenue: {!$Input:varLoanApp.Verified_Annual_Revenue__c}
+Applicable credit policy (already retrieved and cited): {!$Input:varPolicy}
+
+# Write the memo in Markdown, with a ## heading for each section:
+Applicant &amp; Facility Summary — name, borrower type, loan amount, security type.
+Financial Position — state declared and verified revenue exactly as given above; never round or alter a figure. Where they differ, state both and flag the difference as an item for review.
+Policy Compliance Evidence — for each applicable requirement in the policy (DSCR, ICR, eligibility, thresholds), state what the policy requires with its citation alongside the corresponding figure above. Present as a factual comparison for the analyst — do not conclude approve or decline.
+Items for Analyst Attention — discrepancies, gaps, or points to verify.
+Sources — list the policy citations.
+
+# Rules:
+Ground every statement in the data provided. Do not add, infer, or invent anything.
+Reproduce all figures and citations exactly.
+Do not state or imply an approve/decline recommendation, a credit score, or a lending decision — that is the analyst&apos;s.
+If required data is missing, note it as a gap.
+Format the entire memo as valid HTML using &lt;h2&gt; for section headings, &lt;ul&gt;/&lt;li&gt; for lists, and &lt;strong&gt; for labels. Do not alter any figures, policy citations, or source references — reproduce them exactly.
+
+</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>varLoanApp</apiName>
+            <definition>SOBJECT://Loan_Application__c</definition>
+            <masterLabel>varLoanApp</masterLabel>
+            <referenceName>Input:varLoanApp</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>varPolicy</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>varPolicy</masterLabel>
+            <referenceName>Input:varPolicy</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultVertexAIGeminiPro25</primaryModel>
+        <status>Published</status>
+        <templateFormat>FormulaExpression</templateFormat>
+        <versionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_2</versionIdentifier>
+    </templateVersions>
+    <templateVersions>
+        <content># Applicant &amp; facility
+Applicant: {!$Input:varLoanApp.Applicant__r.FirstName} {!$Input:varLoanApp.Applicant__r.LastName}
+Borrower type: {!$Input:varLoanApp.Borrower_Type__c}
+Loan amount requested: {!$Input:varLoanApp.Loan_Amount_Requested__c}
+Security type: {!$Input:varLoanApp.Security_Type__c}
+Declared annual revenue: {!$Input:varLoanApp.Declared_Annual_Revenue__c}
+Verified annual revenue: {!$Input:varLoanApp.Verified_Annual_Revenue__c}
+Applicable credit policy (already retrieved and cited): {!$Input:varPolicy}
+
+# Write the memo in HTML. Use &lt;h2&gt; for each section heading, &lt;ul&gt; and &lt;li&gt; for lists, and &lt;strong&gt; for field labels. Output only the HTML body — no &lt;html&gt;, &lt;head&gt;, &lt;body&gt;, or markdown fences.
+Produce these sections:
+&lt;h2&gt;Applicant &amp; Facility Summary&lt;/h2&gt; — name, borrower type, loan amount, security type.
+&lt;h2&gt;Financial Position&lt;/h2&gt; — state declared and verified revenue exactly as given above; never round or alter a figure. Where they differ, state both and flag the difference as an item for review.
+&lt;h2&gt;Policy Compliance Evidence&lt;/h2&gt; — for each applicable requirement in the policy (DSCR, ICR, eligibility, thresholds), state what the policy requires with its citation alongside the corresponding figure above. Present as a factual comparison for the analyst — do not conclude approve or decline.
+&lt;h2&gt;Items for Analyst Attention&lt;/h2&gt; — discrepancies, gaps, or points to verify.
+&lt;h2&gt;Sources&lt;/h2&gt; — list the policy citations.
+
+# Rules:
+Ground every statement in the data provided. Do not add, infer, or invent anything.
+Reproduce all figures and citations exactly — do not round, reformat, or alter any number.
+Do not state or imply an approve/decline recommendation, a credit score, or a lending decision — that is the analyst&apos;s.
+If required data is missing, note it as a gap.
+Output valid HTML only, using the tags above. Do not use markdown (no ##, no **). Do not wrap the output in code fences.
+</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>varPolicy</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>varPolicy</masterLabel>
+            <referenceName>Input:varPolicy</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>varLoanApp</apiName>
+            <definition>SOBJECT://Loan_Application__c</definition>
+            <masterLabel>varLoanApp</masterLabel>
+            <referenceName>Input:varLoanApp</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultVertexAIGeminiPro25</primaryModel>
+        <status>Published</status>
+        <templateFormat>FormulaExpression</templateFormat>
+        <versionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_3</versionIdentifier>
+    </templateVersions>
+    <templateVersions>
+        <content># Applicant &amp; facility
+Applicant: {!$Input:varLoanApp.Applicant__r.FirstName} {!$Input:varLoanApp.Applicant__r.LastName}
+Borrower type: {!$Input:varLoanApp.Borrower_Type__c}
+Loan amount requested: {!$Input:varLoanApp.Loan_Amount_Requested__c}
+Security type: {!$Input:varLoanApp.Security_Type__c}
+Declared annual revenue: {!$Input:varLoanApp.Declared_Annual_Revenue__c}
+Verified annual revenue: {!$Input:varLoanApp.Verified_Annual_Revenue__c}
+Applicable credit policy (already retrieved and cited): {!$Input:varPolicy}
+
+# Write the memo in HTML. 
+Use &lt;h3&gt; for each section heading, &lt;ul&gt; and &lt;li&gt; for lists, and &lt;strong&gt; for field labels. 
+Output only the HTML body — no &lt;html&gt;, &lt;head&gt;, &lt;body&gt;, or markdown fences.
+Output compact HTML with no blank lines or extra spaces between tags, using the tags above. 
+Do not use markdown (no ##, no **). Do not wrap the output in code fences.
+Produce these sections:
+&lt;h3&gt;Applicant &amp; Facility Summary&lt;/h3&gt; — name, borrower type, loan amount, security type.
+&lt;h3&gt;Financial Position&lt;/h2&gt; — state declared and verified revenue exactly as given above; never round or alter a figure. Where they differ, state both and flag the difference as an item for review.
+&lt;h3&gt;Policy Compliance Evidence&lt;/h3&gt; — for each applicable requirement in the policy (DSCR, ICR, eligibility, thresholds), state what the policy requires with its citation alongside the corresponding figure above. Present as a factual comparison for the analyst — do not conclude approve or decline.
+&lt;h3&gt;Items for Analyst Attention&lt;/h3&gt; — discrepancies, gaps, or points to verify.
+&lt;h3&gt;Sources&lt;/h3&gt; — list the policy citations.
+
+# Rules:
+Ground every statement in the data provided. Do not add, infer, or invent anything.
+Reproduce all figures and citations exactly — do not round, reformat, or alter any number.
+Do not state or imply an approve/decline recommendation, a credit score, or a lending decision — that is the analyst&apos;s.
+If required data is missing, note it as a gap.
+
+</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>varLoanApp</apiName>
+            <definition>SOBJECT://Loan_Application__c</definition>
+            <masterLabel>varLoanApp</masterLabel>
+            <referenceName>Input:varLoanApp</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>varPolicy</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>varPolicy</masterLabel>
+            <referenceName>Input:varPolicy</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultVertexAIGeminiPro25</primaryModel>
+        <status>Published</status>
+        <templateFormat>FormulaExpression</templateFormat>
+        <versionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_4</versionIdentifier>
+    </templateVersions>
+    <templateVersions>
+        <content># Applicant &amp; facility
+Applicant: {!$Input:varLoanApp.Applicant__r.FirstName} {!$Input:varLoanApp.Applicant__r.LastName}
+Borrower type: {!$Input:varLoanApp.Borrower_Type__c}
+Loan amount requested: {!$Input:varLoanApp.Loan_Amount_Requested__c}
+Security type: {!$Input:varLoanApp.Security_Type__c}
+Declared annual revenue: {!$Input:varLoanApp.Declared_Annual_Revenue__c}
+Verified annual revenue: {!$Input:varLoanApp.Verified_Annual_Revenue__c}
+Applicable credit policy (already retrieved and cited): {!$Input:varPolicy}
+
+# Write the memo in HTML. 
+Use &lt;h3&gt; for each section heading, &lt;ul&gt; and &lt;li&gt; for lists, and &lt;strong&gt; for field labels. 
+Output only the HTML body — no &lt;html&gt;, &lt;head&gt;, &lt;body&gt;, or markdown fences.
+Output compact HTML with no blank lines or extra spaces between tags, using the tags above. 
+Do not use markdown (no ##, no **). Do not wrap the output in code fences.
+Produce these sections:
+&lt;h3&gt;Applicant &amp; Facility Summary&lt;/h3&gt; — name, borrower type, loan amount, security type.
+&lt;h3&gt;Financial Position&lt;/h2&gt; — state declared and verified revenue exactly as given above; never round or alter a figure. Where they differ, state both and flag the difference as an item for review.
+&lt;h3&gt;Policy Compliance Evidence&lt;/h3&gt; — for each applicable requirement in the policy (DSCR, ICR, eligibility, thresholds), state what the policy requires with its citation alongside the corresponding figure above. Present as a factual comparison for the analyst — do not conclude approve or decline.
+&lt;h3&gt;Items for Analyst Attention&lt;/h3&gt; — discrepancies, gaps, or points to verify.
+&lt;h3&gt;Sources&lt;/h3&gt; — list the policy citations.
+Add a line break before and after the memo.
+
+# Rules:
+Ground every statement in the data provided. Do not add, infer, or invent anything.
+Reproduce all figures and citations exactly — do not round, reformat, or alter any number.
+Do not state or imply an approve/decline recommendation, a credit score, or a lending decision — that is the analyst&apos;s.
+If required data is missing, note it as a gap.
+
+</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>varPolicy</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>varPolicy</masterLabel>
+            <referenceName>Input:varPolicy</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>varLoanApp</apiName>
+            <definition>SOBJECT://Loan_Application__c</definition>
+            <masterLabel>varLoanApp</masterLabel>
+            <referenceName>Input:varLoanApp</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultVertexAIGeminiPro25</primaryModel>
+        <status>Published</status>
+        <templateFormat>FormulaExpression</templateFormat>
+        <versionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_5</versionIdentifier>
+    </templateVersions>
+    <templateVersions>
+        <content># Applicant &amp; facility
+Applicant: {!$Input:varLoanApp.Applicant__r.FirstName} {!$Input:varLoanApp.Applicant__r.LastName}
+Borrower type: {!$Input:varLoanApp.Borrower_Type__c}
+Loan amount requested: {!$Input:varLoanApp.Loan_Amount_Requested__c}
+Security type: {!$Input:varLoanApp.Security_Type__c}
+Declared annual revenue: {!$Input:varLoanApp.Declared_Annual_Revenue__c}
+Verified annual revenue: {!$Input:varLoanApp.Verified_Annual_Revenue__c}
+Applicable credit policy (already retrieved and cited): {!$Input:varPolicy}
+
+# Write the memo in HTML. 
+Use &lt;h3&gt; for each section heading, &lt;ul&gt; and &lt;li&gt; for lists, and &lt;strong&gt; for field labels. 
+Output only the HTML body — no &lt;html&gt;, &lt;head&gt;, &lt;body&gt;, or markdown fences.
+Output compact HTML with no blank lines or extra spaces between tags, using the tags above. 
+Do not use markdown (no ##, no **). Do not wrap the output in code fences.
+Produce these sections:
+&lt;h3&gt;Applicant &amp; Facility Summary&lt;/h3&gt; — name, borrower type, loan amount, security type.
+&lt;h3&gt;Financial Position&lt;/h2&gt; — state declared and verified revenue exactly as given above; never round or alter a figure. Where they differ, state both and flag the difference as an item for review.
+&lt;h3&gt;Policy Compliance Evidence&lt;/h3&gt; — for each applicable requirement in the policy (DSCR, ICR, eligibility, thresholds), state what the policy requires with its citation alongside the corresponding figure above. Present as a factual comparison for the analyst — do not conclude approve or decline.
+&lt;h3&gt;Items for Analyst Attention&lt;/h3&gt; — discrepancies, gaps, or points to verify.
+&lt;h3&gt;Sources&lt;/h3&gt; — list the policy citations.
+
+# Rules:
+Ground every statement in the data provided. Do not add, infer, or invent anything.
+Add a line break before and after the html block.
+Reproduce all figures and citations exactly — do not round, reformat, or alter any number.
+Do not state or imply an approve/decline recommendation, a credit score, or a lending decision — that is the analyst&apos;s.
+If required data is missing, note it as a gap.
+
+</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>varLoanApp</apiName>
+            <definition>SOBJECT://Loan_Application__c</definition>
+            <masterLabel>varLoanApp</masterLabel>
+            <referenceName>Input:varLoanApp</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>varPolicy</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>varPolicy</masterLabel>
+            <referenceName>Input:varPolicy</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultVertexAIGeminiPro25</primaryModel>
+        <status>Published</status>
+        <templateFormat>FormulaExpression</templateFormat>
+        <versionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_6</versionIdentifier>
+    </templateVersions>
+    <templateVersions>
+        <content># Applicant &amp; facility
+Applicant: {!$Input:varLoanApp.Applicant__r.FirstName} {!$Input:varLoanApp.Applicant__r.LastName}
+Borrower type: {!$Input:varLoanApp.Borrower_Type__c}
+Loan amount requested: {!$Input:varLoanApp.Loan_Amount_Requested__c}
+Security type: {!$Input:varLoanApp.Security_Type__c}
+Declared annual revenue: {!$Input:varLoanApp.Declared_Annual_Revenue__c}
+Verified annual revenue: {!$Input:varLoanApp.Verified_Annual_Revenue__c}
+Applicable credit policy (already retrieved and cited): {!$Input:varPolicy}
+
+# Write the memo in HTML. 
+Use &lt;h3&gt; for each section heading, &lt;ul&gt; and &lt;li&gt; for lists, and &lt;strong&gt; for field labels. 
+Output only the HTML body — no &lt;html&gt;, &lt;head&gt;, &lt;body&gt;, or markdown fences.
+Output compact HTML with no blank lines or extra spaces between tags, using the tags above. 
+Do not use markdown (no ##, no **). Do not wrap the output in code fences.
+Produce these sections:
+&lt;h3&gt;Applicant &amp; Facility Summary&lt;/h3&gt; — name, borrower type, loan amount, security type.
+&lt;h3&gt;Financial Position&lt;/h2&gt; — state declared and verified revenue exactly as given above; never round or alter a figure. Where they differ, state both and flag the difference as an item for review.
+&lt;h3&gt;Policy Compliance Evidence&lt;/h3&gt; — for each applicable requirement in the policy (DSCR, ICR, eligibility, thresholds), state what the policy requires with its citation alongside the corresponding figure above. Present as a factual comparison for the analyst — do not conclude approve or decline.
+&lt;h3&gt;Items for Analyst Attention&lt;/h3&gt; — discrepancies, gaps, or points to verify.
+&lt;h3&gt;Sources&lt;/h3&gt; — list the policy citations.
+
+# Rules:
+Ground every statement in the data provided. Do not add, infer, or invent anything.
+Reproduce all figures and citations exactly — do not round, reformat, or alter any number.
+Do not state or imply an approve/decline recommendation, a credit score, or a lending decision — that is the analyst&apos;s.
+If required data is missing, note it as a gap.
+
+</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>varPolicy</apiName>
+            <definition>primitive://String</definition>
+            <masterLabel>varPolicy</masterLabel>
+            <referenceName>Input:varPolicy</referenceName>
+            <required>true</required>
+        </inputs>
+        <inputs>
+            <apiName>varLoanApp</apiName>
+            <definition>SOBJECT://Loan_Application__c</definition>
+            <masterLabel>varLoanApp</masterLabel>
+            <referenceName>Input:varLoanApp</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultVertexAIGeminiPro25</primaryModel>
+        <status>Published</status>
+        <templateFormat>FormulaExpression</templateFormat>
+        <versionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_7</versionIdentifier>
+    </templateVersions>
+    <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
+</GenAiPromptTemplate>

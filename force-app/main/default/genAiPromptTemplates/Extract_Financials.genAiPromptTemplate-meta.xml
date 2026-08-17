@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <activeVersionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_1</activeVersionIdentifier>
+    <description>Extracts verified financial figures — annual revenue and net income — from an applicant&apos;s uploaded financial statement PDF, returning structured JSON with a confidence score. Use to pull verified financials from a statement document for a loan assessment.</description>
+    <developerName>Extract_Financials</developerName>
+    <masterLabel>Extract Financials</masterLabel>
+    <overridable>false</overridable>
+    <templateVersions>
+        <content>You are extracting figures from an attached financial statement PDF for a credit assessment.
+Statement: {!$RecordSnapshot:varStatement.snapshot}
+Extract only these values. Return only valid JSON, no prose, no markdown fences:
+
+{
+  &quot;verified_annual_revenue&quot;: &lt;number or null&gt;,
+  &quot;verified_net_income&quot;: &lt;number or null&gt;,
+  &quot;confidence&quot;: &lt;0.0-1.0&gt;,
+  &quot;source_notes&quot;: &quot;&lt;where in the document each figure was found&gt;&quot;
+}
+
+Rules: extract figures exactly as written; do not calculate, infer, or estimate. Strip currency symbols and commas — return plain numbers. If a value isn&apos;t clearly present, set it null and lower confidence.
+</content>
+        <fileDroppingStrategy>{&quot;dropFilesBy&quot;:&quot;LAST_MODIFIED_DATE&quot;,&quot;dropFileStartingWith&quot;:&quot;OLDEST&quot;}</fileDroppingStrategy>
+        <inputs>
+            <apiName>varStatement</apiName>
+            <definition>SOBJECT://ContentDocument</definition>
+            <masterLabel>varStatement</masterLabel>
+            <referenceName>Input:varStatement</referenceName>
+            <required>true</required>
+        </inputs>
+        <isCitationEnabled>false</isCitationEnabled>
+        <primaryModel>sfdc_ai__DefaultGPT5Mini</primaryModel>
+        <status>Published</status>
+        <templateDataProviders>
+            <definition>invocable://getDataForGrounding</definition>
+            <description>Retrieves record data for grounding a prompt template.</description>
+            <label>Record Snapshot</label>
+            <parameters>
+                <definition>primitive://String</definition>
+                <isRequired>true</isRequired>
+                <parameterName>recordId</parameterName>
+                <valueExpression>{!$Input:varStatement.Id}</valueExpression>
+            </parameters>
+            <referenceName>RecordSnapshot:varStatement</referenceName>
+        </templateDataProviders>
+        <versionIdentifier>OEn6IIYEH4585aWK5QpsX2pdYVfDeWGFLttBg3KbaEY=_1</versionIdentifier>
+    </templateVersions>
+    <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
+</GenAiPromptTemplate>

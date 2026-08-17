@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Drafts a structured, cited credit-assessment memo from the applicant profile and applicable policy. Evidence assembly only — no lending decision. Use when the analyst asks to draft or generate a credit memo.</description>
+    <developerName>Generate_Credit_Memo</developerName>
+    <invocationTarget>Generate_Credit_Memo</invocationTarget>
+    <invocationTargetType>generatePromptResponse</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Generate_Credit_Memo</localDeveloperName>
+    <masterLabel>Generate Credit Memo</masterLabel>
+    <progressIndicatorMessage>Drafting the credit memo…</progressIndicatorMessage>
+</GenAiFunction>

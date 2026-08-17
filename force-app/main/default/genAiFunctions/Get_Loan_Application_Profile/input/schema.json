@@ -1,0 +1,14 @@
+{
+  "required" : [ "loanapplicationid" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "loanapplicationid" : {
+      "title" : "Loanapplicationid",
+      "description" : "The record Id of the Loan Application being assessed — taken from the current record the agent is on.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

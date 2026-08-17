@@ -1,0 +1,124 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "200" : {
+      "title" : "200",
+      "description" : "Status Code 200",
+      "lightning:type" : "@apexClassType/ExternalService__c__GetLoanApplicationProfilex5fnquery_GetLoanApplicationProfile_OUT_200?isAuraEnabled=true",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "responseCode" : {
+      "title" : "Response Code",
+      "description" : "response code",
+      "lightning:type" : "lightning__integerType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "400Exc" : {
+      "title" : "400 Exception",
+      "description" : "Status Code 400",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/ExternalService__c__GetLoanApplicationProfilex5fnquery_ErrorInfo?isAuraEnabled=true"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "401Exc" : {
+      "title" : "401 Exception",
+      "description" : "Status Code 401",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/ExternalService__c__GetLoanApplicationProfilex5fnquery_ErrorInfo?isAuraEnabled=true"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "403Exc" : {
+      "title" : "403 Exception",
+      "description" : "Status Code 403",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/ExternalService__c__GetLoanApplicationProfilex5fnquery_RestApiError?isAuraEnabled=true"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "404Exc" : {
+      "title" : "404 Exception",
+      "description" : "Status Code 404",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/ExternalService__c__GetLoanApplicationProfilex5fnquery_RestApiError?isAuraEnabled=true"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "500Exc" : {
+      "title" : "500 Exception",
+      "description" : "Status Code 500",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/ExternalService__c__GetLoanApplicationProfilex5fnquery_ErrorInfo?isAuraEnabled=true"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "405Exc" : {
+      "title" : "405 Exception",
+      "description" : "Status Code 405",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/ExternalService__c__GetLoanApplicationProfilex5fnquery_RestApiError?isAuraEnabled=true"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "503Exc" : {
+      "title" : "503 Exception",
+      "description" : "Status Code 503",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/ExternalService__c__GetLoanApplicationProfilex5fnquery_RestApiError?isAuraEnabled=true"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "defaultExc" : {
+      "title" : "Default Exception",
+      "description" : "Default response",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

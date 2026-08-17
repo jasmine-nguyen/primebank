@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Retrieves the credit-policy provisions that apply to a loan&apos;s segment — thresholds, ratios, eligibility, and responsible-lending rules — with source citations. Use when the analyst needs the applicable lending policy, or to ground a credit memo.</description>
+    <developerName>Search_Credit_Policy</developerName>
+    <invocationTarget>Search_Credit_Policy</invocationTarget>
+    <invocationTargetType>generatePromptResponse</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Search_Credit_Policy</localDeveloperName>
+    <masterLabel>Search Credit Policy</masterLabel>
+    <progressIndicatorMessage>Searching credit policy and gathering citations…</progressIndicatorMessage>
+</GenAiFunction>
