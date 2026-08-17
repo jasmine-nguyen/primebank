@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <description>Every evidence signal is present. Signals-missing is written as empty rather than left alone, so a record that has just been completed does not keep advertising gaps it no longer has.</description>
         <name>Set_Confidence_High</name>
         <label>Set Confidence High</label>
         <locationX>50</locationX>
         <locationY>566</locationY>
-        <description>Every evidence signal is present. Signals-missing is written as empty rather than left alone, so a record that has just been completed does not keep advertising gaps it no longer has.</description>
         <assignmentItems>
             <assignToReference>$Record.Grounding_Confidence__c</assignToReference>
             <operator>Assign</operator>
@@ -23,11 +24,11 @@
         </assignmentItems>
     </assignments>
     <assignments>
+        <description>A hard evidence failure: no verified financials, intake could not read the statement, or no current bureau file. This is the band the escalation action treats as its primary trigger.</description>
         <name>Set_Confidence_Low</name>
         <label>Set Confidence Low</label>
         <locationX>314</locationX>
         <locationY>566</locationY>
-        <description>A hard evidence failure: no verified financials, intake could not read the statement, or no current bureau file. This is the band the escalation action treats as its primary trigger.</description>
         <assignmentItems>
             <assignToReference>$Record.Grounding_Confidence__c</assignToReference>
             <operator>Assign</operator>
@@ -44,11 +45,11 @@
         </assignmentItems>
     </assignments>
     <assignments>
+        <description>The evidence base is sound but the applicant profile is incomplete. Assessable, with a named gap to close.</description>
         <name>Set_Confidence_Medium</name>
         <label>Set Confidence Medium</label>
         <locationX>182</locationX>
         <locationY>566</locationY>
-        <description>The evidence base is sound but the applicant profile is incomplete. Assessable, with a named gap to close.</description>
         <assignmentItems>
             <assignToReference>$Record.Grounding_Confidence__c</assignToReference>
             <operator>Assign</operator>
@@ -65,35 +66,35 @@
         </assignmentItems>
     </assignments>
     <constants>
+        <description>All four evidence signals present.</description>
         <name>CONFIDENCE_HIGH</name>
         <dataType>Number</dataType>
-        <description>All four evidence signals present.</description>
         <value>
             <numberValue>100.0</numberValue>
         </value>
     </constants>
     <constants>
+        <description>Evidence base is broken. The escalation action keys on this exact value as its primary trigger, so the two must be changed together.</description>
         <name>CONFIDENCE_LOW</name>
         <dataType>Number</dataType>
-        <description>Evidence base is broken. The escalation action keys on this exact value as its primary trigger, so the two must be changed together.</description>
         <value>
             <numberValue>20.0</numberValue>
         </value>
     </constants>
     <constants>
+        <description>Evidence usable, profile incomplete.</description>
         <name>CONFIDENCE_MEDIUM</name>
         <dataType>Number</dataType>
-        <description>Evidence usable, profile incomplete.</description>
         <value>
             <numberValue>50.0</numberValue>
         </value>
     </constants>
     <decisions>
+        <description>Bands are evaluated in order and the first match wins, which is what resolves the overlap between the Low and Medium definitions: a record missing both verified financials and a complete profile is Low, because the harder failure governs. Every condition is a presence check. Deliberately no condition reads the credit SCORE or the disparity PERCENTAGE — those measure how good the deal is, and letting them move this field would turn a completeness signal into a lending opinion.</description>
         <name>Confidence_Band</name>
         <label>Confidence Band?</label>
         <locationX>182</locationX>
         <locationY>458</locationY>
-        <description>Bands are evaluated in order and the first match wins, which is what resolves the overlap between the Low and Medium definitions: a record missing both verified financials and a complete profile is Low, because the harder failure governs. Every condition is a presence check. Deliberately no condition reads the credit SCORE or the disparity PERCENTAGE — those measure how good the deal is, and letting them move this field would turn a completeness signal into a lending opinion.</description>
         <defaultConnector>
             <targetReference>Set_Confidence_High</targetReference>
         </defaultConnector>
@@ -167,16 +168,16 @@
     <description>Deterministic grounding confidence: measures whether the evidence needed to assess this application is present, and never whether the application is any good. Stored as a band (100/50/20 on a Percent field), not a continuous score — the field renders as a percentage, so 100.00% reads as complete evidence. Runs before save, so it writes to the same record with no DML and cannot recurse. Order against the disparity flow is deliberately unconstrained: triggerOrder is rejected by FlowStart at v67, and it is not needed, because the two flows read and write disjoint field sets — neither consumes anything the other produces. TODO: could enrich confidence with retrieval-chunk-count once cleanly exposed.</description>
     <environments>Default</environments>
     <formulas>
+        <description>The raw list with its trailing separator removed. Written to Grounding_Signals_Missing__c so the escalation reason and the agent evidence trail can name the gaps without re-deriving this logic in a second place.</description>
         <name>fmlSignalsMissing</name>
         <dataType>String</dataType>
-        <description>The raw list with its trailing separator removed. Written to Grounding_Signals_Missing__c so the escalation reason and the agent evidence trail can name the gaps without re-deriving this logic in a second place.</description>
-        <expression>IF(LEN({!fmlSignalsMissingRaw}) &gt; 0, LEFT({!fmlSignalsMissingRaw}, LEN({!fmlSignalsMissingRaw}) - 2), "")</expression>
+        <expression>IF(LEN({!fmlSignalsMissingRaw}) &gt; 0, LEFT({!fmlSignalsMissingRaw}, LEN({!fmlSignalsMissingRaw}) - 2), &quot;&quot;)</expression>
     </formulas>
     <formulas>
+        <description>Semicolon-separated list of absent signals, in the same order the decision evaluates them. Carries a trailing separator that fmlSignalsMissing strips. Names the missing evidence only — never a figure — so the string stays safe at Internal classification.</description>
         <name>fmlSignalsMissingRaw</name>
         <dataType>String</dataType>
-        <description>Semicolon-separated list of absent signals, in the same order the decision evaluates them. Carries a trailing separator that fmlSignalsMissing strips. Names the missing evidence only — never a figure — so the string stays safe at Internal classification.</description>
-        <expression>IF(ISBLANK({!$Record.Verified_Annual_Revenue__c}) || ISBLANK({!$Record.Verified_Net_Income__c}), "verified financials; ", "") &amp; IF({!$Record.Needs_Financial_Review__c}, "statement review gate; ", "") &amp; IF(BLANKVALUE({!$Record.Current_Credit_Checks__c}, 0) = 0, "current credit check; ", "") &amp; IF(ISBLANK({!$Record.Applicant__c}) || ISBLANK(TEXT({!$Record.Security_Type__c})) || ISBLANK({!$Record.Declared_Annual_Revenue__c}), "complete applicant profile; ", "")</expression>
+        <expression>IF(ISBLANK({!$Record.Verified_Annual_Revenue__c}) || ISBLANK({!$Record.Verified_Net_Income__c}), &quot;verified financials; &quot;, &quot;&quot;) &amp; IF({!$Record.Needs_Financial_Review__c}, &quot;statement review gate; &quot;, &quot;&quot;) &amp; IF(BLANKVALUE({!$Record.Current_Credit_Checks__c}, 0) = 0, &quot;current credit check; &quot;, &quot;&quot;) &amp; IF(ISBLANK({!$Record.Applicant__c}) || ISBLANK(TEXT({!$Record.Security_Type__c})) || ISBLANK({!$Record.Declared_Annual_Revenue__c}), &quot;complete applicant profile; &quot;, &quot;&quot;)</expression>
     </formulas>
     <interviewLabel>Loan Application Grounding Confidence Calc {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Loan Application Grounding Confidence Calc</label>

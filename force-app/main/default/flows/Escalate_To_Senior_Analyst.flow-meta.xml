@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <description>Idempotent path. The file is already with a senior, so nothing is written and the owner is left alone — re-running must not re-stamp the reason or bounce ownership. The existing reason and a fresh evidence trail are still returned, so the agent can explain the state it found.</description>
         <name>Set_Already_Escalated</name>
         <label>Set Already Escalated</label>
-        <locationX>710</locationX>
-        <locationY>566</locationY>
-        <description>Idempotent path. The file is already with a senior, so nothing is written and the owner is left alone — re-running must not re-stamp the reason or bounce ownership. The existing reason and a fresh evidence trail are still returned, so the agent can explain the state it found.</description>
+        <locationX>391</locationX>
+        <locationY>658</locationY>
         <assignmentItems>
             <assignToReference>varAlreadyEscalated</assignToReference>
             <operator>Assign</operator>
@@ -58,11 +59,11 @@
         </assignmentItems>
     </assignments>
     <assignments>
+        <description>Returns the full evidence trail the analyst needs to act without reopening the record: the confidence band and exactly which signals are missing, the declared and verified figures, the disparity, and the bureau result.</description>
         <name>Set_Escalated_Outputs</name>
         <label>Set Escalated Outputs</label>
         <locationX>50</locationX>
-        <locationY>782</locationY>
-        <description>Returns the full evidence trail the analyst needs to act without reopening the record: the confidence band and exactly which signals are missing, the declared and verified figures, the disparity, and the bureau result.</description>
+        <locationY>1141</locationY>
         <assignmentItems>
             <assignToReference>varEscalated</assignToReference>
             <operator>Assign</operator>
@@ -114,11 +115,11 @@
         </assignmentItems>
     </assignments>
     <assignments>
+        <description>Neither trigger fired. Nothing is written, and the evidence trail is still returned so the agent can show its working for deciding not to escalate.</description>
         <name>Set_No_Escalation</name>
         <label>Set No Escalation</label>
-        <locationX>446</locationX>
-        <locationY>674</locationY>
-        <description>Neither trigger fired. Nothing is written, and the evidence trail is still returned so the agent can show its working for deciding not to escalate.</description>
+        <locationX>279</locationX>
+        <locationY>827</locationY>
         <assignmentItems>
             <assignToReference>varEscalated</assignToReference>
             <operator>Assign</operator>
@@ -163,11 +164,11 @@
         </assignmentItems>
     </assignments>
     <assignments>
+        <description>The supplied Id matched nothing the running user can see. Returns a stated failure rather than silently reporting no escalation, which would read to the agent as an assessed all-clear.</description>
         <name>Set_Not_Found</name>
         <label>Set Not Found</label>
-        <locationX>842</locationX>
-        <locationY>458</locationY>
-        <description>The supplied Id matched nothing the running user can see. Returns a stated failure rather than silently reporting no escalation, which would read to the agent as an assessed all-clear.</description>
+        <locationX>717</locationX>
+        <locationY>302</locationY>
         <assignmentItems>
             <assignToReference>varEscalated</assignToReference>
             <operator>Assign</operator>
@@ -191,27 +192,27 @@
         </assignmentItems>
     </assignments>
     <constants>
+        <description>Must match CONFIDENCE_LOW in Loan Application Grounding Confidence Calc. The two are a pair: change one and this action stops firing.</description>
         <name>CONFIDENCE_LOW</name>
         <dataType>Number</dataType>
-        <description>Must match CONFIDENCE_LOW in Loan Application Grounding Confidence Calc. The two are a pair: change one and this action stops firing.</description>
         <value>
             <numberValue>20.0</numberValue>
         </value>
     </constants>
     <constants>
+        <description>Escalation target, held as a username rather than a record Id so nothing in source is org-specific. Production: senior QUEUE (A2) — a queue survives the analyst leaving, taking leave, or being reassigned, which a named user does not.</description>
         <name>SENIOR_ANALYST_USERNAME</name>
         <dataType>String</dataType>
-        <description>Escalation target, held as a username rather than a record Id so nothing in source is org-specific. Production: senior QUEUE (A2) — a queue survives the analyst leaving, taking leave, or being reassigned, which a named user does not.</description>
         <value>
             <stringValue>senior.analyst.e8fb017a0cbd@primecapital.demo</stringValue>
         </value>
     </constants>
     <decisions>
+        <description>Idempotency gate. Runs before the trigger test so that a second call on an escalated file is a no-op regardless of why it was escalated the first time.</description>
         <name>Already_Escalated</name>
         <label>Already Escalated?</label>
-        <locationX>446</locationX>
-        <locationY>458</locationY>
-        <description>Idempotency gate. Runs before the trigger test so that a second call on an escalated file is a no-op regardless of why it was escalated the first time.</description>
+        <locationX>279</locationX>
+        <locationY>499</locationY>
         <defaultConnector>
             <targetReference>Should_Escalate</targetReference>
         </defaultConnector>
@@ -233,11 +234,11 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Guards every downstream reference. An unknown or invisible Id must not fall through to the no-escalation path, which would look like a clean assessment.</description>
         <name>Application_Found</name>
         <label>Application Found?</label>
-        <locationX>446</locationX>
-        <locationY>242</locationY>
-        <description>Guards every downstream reference. An unknown or invisible Id must not fall through to the no-escalation path, which would look like a clean assessment.</description>
+        <locationX>495</locationX>
+        <locationY>306</locationY>
         <defaultConnector>
             <targetReference>Set_Not_Found</targetReference>
         </defaultConnector>
@@ -259,11 +260,11 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Low grounding confidence is the primary trigger — the requirement is that confidence below threshold routes to a senior. A raised disparity flag escalates as well, and is named separately in the reason so the two causes are never conflated in the audit trail.</description>
         <name>Should_Escalate</name>
         <label>Should Escalate?</label>
-        <locationX>314</locationX>
-        <locationY>566</locationY>
-        <description>Low grounding confidence is the primary trigger — the requirement is that confidence below threshold routes to a senior. A raised disparity flag escalates as well, and is named separately in the reason so the two causes are never conflated in the audit trail.</description>
+        <locationX>161</locationX>
+        <locationY>663</locationY>
         <defaultConnector>
             <targetReference>Set_No_Escalation</targetReference>
         </defaultConnector>
@@ -294,32 +295,44 @@
     <description>Action 6. Routes a loan application to a senior credit analyst when grounding confidence is Low or a financial disparity is flagged, and returns the evidence trail behind that decision. Never clears Escalated__c on any path — closing an escalation requires the Can_Clear_Escalation permission, which the Only_Senior_Can_Clear_Escalation validation rule enforces against direct edits too.</description>
     <environments>Default</environments>
     <formulas>
+        <description>Turns the stored band value back into its name for presentation. The field is a Percent so it renders as 100.00%, which is readable on a layout but not what an analyst wants read aloud.</description>
         <name>fmlConfidenceBand</name>
         <dataType>String</dataType>
-        <description>Turns the stored band value back into its name for presentation. The field is a Percent so it renders as 100.00%, which is readable on a layout but not what an analyst wants read aloud.</description>
-        <expression>IF({!Get_Loan_Application.Grounding_Confidence__c} = 100, "High", IF({!Get_Loan_Application.Grounding_Confidence__c} = 50, "Medium", IF({!Get_Loan_Application.Grounding_Confidence__c} = 20, "Low", "Not yet computed")))</expression>
+        <expression>IF({!Get_Loan_Application.Grounding_Confidence__c} = 100, &quot;High&quot;, IF({!Get_Loan_Application.Grounding_Confidence__c} = 50, &quot;Medium&quot;, IF({!Get_Loan_Application.Grounding_Confidence__c} = 20, &quot;Low&quot;, &quot;Not yet computed&quot;)))</expression>
     </formulas>
     <formulas>
+        <description>Deterministic and system-generated, never narrative. The confidence clause names the band and the specific missing signals, because an escalation that says only &quot;low confidence&quot; gives the senior nothing to act on. A disparity clause is appended as an explicitly ADDITIONAL reason so it never masquerades as the primary one.</description>
         <name>fmlEscalationReason</name>
         <dataType>String</dataType>
-        <description>Deterministic and system-generated, never narrative. The confidence clause names the band and the specific missing signals, because an escalation that says only &quot;low confidence&quot; gives the senior nothing to act on. A disparity clause is appended as an explicitly ADDITIONAL reason so it never masquerades as the primary one.</description>
-        <expression>IF({!Get_Loan_Application.Grounding_Confidence__c} = {!CONFIDENCE_LOW}, "Low grounding confidence (" &amp; TEXT({!Get_Loan_Application.Grounding_Confidence__c}) &amp; "%). Missing evidence: " &amp; BLANKVALUE({!Get_Loan_Application.Grounding_Signals_Missing__c}, "not recorded") &amp; ". ", "") &amp; IF({!Get_Loan_Application.Financial_Disparity_Flag__c}, "Additional reason: declared vs verified revenue disparity of " &amp; TEXT({!Get_Loan_Application.Financial_Disparity_Percent__c}) &amp; "%.", "")</expression>
+        <expression>IF({!Get_Loan_Application.Grounding_Confidence__c} = {!CONFIDENCE_LOW}, &quot;Low grounding confidence (&quot; &amp; TEXT({!Get_Loan_Application.Grounding_Confidence__c}) &amp; &quot;%). Missing evidence: &quot; &amp; BLANKVALUE({!Get_Loan_Application.Grounding_Signals_Missing__c}, &quot;not recorded&quot;) &amp; &quot;. &quot;, &quot;&quot;) &amp; IF({!Get_Loan_Application.Financial_Disparity_Flag__c}, &quot;Declared vs verified revenue disparity of &quot; &amp; TEXT({!Get_Loan_Application.Financial_Disparity_Percent__c}) &amp; &quot;%.&quot;, &quot;&quot;)</expression>
     </formulas>
     <formulas>
+        <description>Everything the senior needs without reopening the record. States the confidence AND why it is what it is, which is the part a confidence escalation must carry. Figures are reported as &quot;not provided&quot; rather than zero when absent — a missing number and a zero mean very different things on a credit file.</description>
         <name>fmlEvidenceTrail</name>
         <dataType>String</dataType>
-        <description>Everything the senior needs without reopening the record. States the confidence AND why it is what it is, which is the part a confidence escalation must carry. Figures are reported as &quot;not provided&quot; rather than zero when absent — a missing number and a zero mean very different things on a credit file.</description>
-        <expression>"Grounding confidence: " &amp; TEXT({!Get_Loan_Application.Grounding_Confidence__c}) &amp; "% (" &amp; {!fmlConfidenceBand} &amp; "). " &amp; IF(LEN(BLANKVALUE({!Get_Loan_Application.Grounding_Signals_Missing__c}, "")) &gt; 0, "Evidence missing: " &amp; {!Get_Loan_Application.Grounding_Signals_Missing__c} &amp; ". ", "All evidence signals present. ") &amp; "Declared revenue: " &amp; IF(ISBLANK({!Get_Loan_Application.Declared_Annual_Revenue__c}), "not provided", TEXT({!Get_Loan_Application.Declared_Annual_Revenue__c})) &amp; ". Verified revenue: " &amp; IF(ISBLANK({!Get_Loan_Application.Verified_Annual_Revenue__c}), "not provided", TEXT({!Get_Loan_Application.Verified_Annual_Revenue__c})) &amp; ". Disparity: " &amp; IF(ISBLANK({!Get_Loan_Application.Financial_Disparity_Percent__c}), "not computed", TEXT({!Get_Loan_Application.Financial_Disparity_Percent__c}) &amp; "%") &amp; ". Bureau: " &amp; IF(ISBLANK({!Get_Latest_Credit_Check.Credit_Score__c}), "no current credit check on file", "score " &amp; TEXT({!Get_Latest_Credit_Check.Credit_Score__c}) &amp; ", reference " &amp; {!Get_Latest_Credit_Check.Credit_Check_Reference__c}) &amp; ". Policy citations available via the credit policy search action."</expression>
+        <expression>&quot;Grounding confidence: &quot; &amp; TEXT({!Get_Loan_Application.Grounding_Confidence__c}) &amp; &quot;% (&quot; &amp; {!fmlConfidenceBand} &amp; &quot;). &quot; &amp; IF(LEN(BLANKVALUE({!Get_Loan_Application.Grounding_Signals_Missing__c}, &quot;&quot;)) &gt; 0, &quot;Evidence missing: &quot; &amp; {!Get_Loan_Application.Grounding_Signals_Missing__c} &amp; &quot;. &quot;, &quot;All evidence signals present. &quot;) &amp; &quot;Declared revenue: &quot; &amp; IF(ISBLANK({!Get_Loan_Application.Declared_Annual_Revenue__c}), &quot;not provided&quot;, TEXT({!Get_Loan_Application.Declared_Annual_Revenue__c})) &amp; &quot;. Verified revenue: &quot; &amp; IF(ISBLANK({!Get_Loan_Application.Verified_Annual_Revenue__c}), &quot;not provided&quot;, TEXT({!Get_Loan_Application.Verified_Annual_Revenue__c})) &amp; &quot;. Disparity: &quot; &amp; IF(ISBLANK({!Get_Loan_Application.Financial_Disparity_Percent__c}), &quot;not computed&quot;, TEXT({!Get_Loan_Application.Financial_Disparity_Percent__c}) &amp; &quot;%&quot;) &amp; &quot;. Bureau: &quot; &amp; IF(ISBLANK({!Get_Latest_Credit_Check.Credit_Score__c}), &quot;no current credit check on file&quot;, &quot;score &quot; &amp; TEXT({!Get_Latest_Credit_Check.Credit_Score__c}) &amp; &quot;, reference &quot; &amp; {!Get_Latest_Credit_Check.Credit_Check_Reference__c}) &amp; &quot;. Policy citations available via the credit policy search action.&quot;</expression>
     </formulas>
     <interviewLabel>Escalate To Senior Analyst {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Escalate To Senior Analyst</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <description>The current bureau file, for the evidence trail. Its absence is itself evidence, so a null result is expected rather than an error — the confidence calc has already counted it as a missing signal.</description>
         <name>Get_Latest_Credit_Check</name>
         <label>Get Latest Credit Check</label>
-        <locationX>446</locationX>
-        <locationY>350</locationY>
-        <description>The current bureau file, for the evidence trail. Its absence is itself evidence, so a null result is expected rather than an error — the confidence calc has already counted it as a missing signal.</description>
+        <locationX>287</locationX>
+        <locationY>301</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Already_Escalated</targetReference>
@@ -344,11 +357,11 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <description>Loads the file under assessment. Runs before any decision so that a bad Id is caught explicitly rather than producing a confident-looking no-escalation result.</description>
         <name>Get_Loan_Application</name>
         <label>Get Loan Application</label>
-        <locationX>446</locationX>
-        <locationY>134</locationY>
-        <description>Loads the file under assessment. Runs before any decision so that a bad Id is caught explicitly rather than producing a confident-looking no-escalation result.</description>
+        <locationX>503</locationX>
+        <locationY>152</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Application_Found</targetReference>
@@ -366,11 +379,11 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <description>Resolves the escalation target by username, so no 18-character Id is baked into source and the flow survives an org rebuild. Production: senior QUEUE (A2).</description>
         <name>Get_Senior_Analyst</name>
         <label>Get Senior Analyst</label>
         <locationX>50</locationX>
-        <locationY>674</locationY>
-        <description>Resolves the escalation target by username, so no 18-character Id is baked into source and the flow survives an org rebuild. Production: senior QUEUE (A2).</description>
+        <locationY>836</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Update_Loan_Application</targetReference>
@@ -395,11 +408,11 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
+        <description>Raises the flag, records the deterministic reason, and hands the file over. Escalated__c is only ever set to true here — no path in this flow clears it, because the analyst whose work triggered the escalation must not be able to close it.</description>
         <name>Update_Loan_Application</name>
         <label>Update Loan Application</label>
         <locationX>50</locationX>
-        <locationY>566</locationY>
-        <description>Raises the flag, records the deterministic reason, and hands the file over. Escalated__c is only ever set to true here — no path in this flow clears it, because the analyst whose work triggered the escalation must not be able to close it.</description>
+        <locationY>985</locationY>
         <connector>
             <targetReference>Set_Escalated_Outputs</targetReference>
         </connector>
@@ -432,7 +445,7 @@
         <object>Loan_Application__c</object>
     </recordUpdates>
     <start>
-        <locationX>320</locationX>
+        <locationX>377</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Get_Loan_Application</targetReference>
@@ -440,74 +453,74 @@
     </start>
     <status>Active</status>
     <variables>
+        <description>True when this file was already escalated before the call, so nothing was changed. Say so rather than reporting a fresh escalation — the analyst needs to know the routing is not new.</description>
         <name>varAlreadyEscalated</name>
         <dataType>Boolean</dataType>
-        <description>True when this file was already escalated before the call, so nothing was changed. Say so rather than reporting a fresh escalation — the analyst needs to know the routing is not new.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <description>The confidence band as a word: High, Medium or Low. Use this rather than the raw number when explaining the outcome.</description>
         <name>varConfidenceBand</name>
         <dataType>String</dataType>
-        <description>The confidence band as a word: High, Medium or Low. Use this rather than the raw number when explaining the outcome.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <description>True when the application is now with a senior analyst. False means no trigger was met or the application could not be found — check the reason before telling anyone the file is clear.</description>
         <name>varEscalated</name>
         <dataType>Boolean</dataType>
-        <description>True when the application is now with a senior analyst. False means no trigger was met or the application could not be found — check the reason before telling anyone the file is clear.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <description>The deterministic reason the file was routed, naming the confidence band and the specific missing evidence, plus any disparity as a separately labelled additional reason. Present this verbatim; do not paraphrase it into a credit opinion.</description>
         <name>varEscalationReason</name>
         <dataType>String</dataType>
-        <description>The deterministic reason the file was routed, naming the confidence band and the specific missing evidence, plus any disparity as a separately labelled additional reason. Present this verbatim; do not paraphrase it into a credit opinion.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <description>The full evidence behind the decision: confidence and why it is what it is, declared and verified revenue, disparity, and the current bureau result. Present this to the analyst alongside the reason. Figures reading &quot;not provided&quot; are genuinely absent, not zero.</description>
         <name>varEvidenceTrail</name>
         <dataType>String</dataType>
-        <description>The full evidence behind the decision: confidence and why it is what it is, declared and verified revenue, disparity, and the current bureau result. Present this to the analyst alongside the reason. Figures reading &quot;not provided&quot; are genuinely absent, not zero.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <description>The stored confidence value: 100 High, 50 Medium, 20 Low. Measures whether the evidence needed to assess the file is present, and says nothing about whether the loan is a good one.</description>
         <name>varGroundingConfidence</name>
         <dataType>Number</dataType>
-        <description>The stored confidence value: 100 High, 50 Medium, 20 Low. Measures whether the evidence needed to assess the file is present, and says nothing about whether the loan is a good one.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
         <scale>2</scale>
     </variables>
     <variables>
+        <description>Record Id of the Loan Application to assess for escalation. This is the 18-character Id of the Loan Application record the user is viewing or has named, not the LA-0001 application number and not the applicant&apos;s Account Id.</description>
         <name>varLoanApplicationId</name>
         <dataType>String</dataType>
-        <description>Record Id of the Loan Application to assess for escalation. This is the 18-character Id of the Loan Application record the user is viewing or has named, not the LA-0001 application number and not the applicant&apos;s Account Id.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Name of the senior analyst the file was handed to. Empty when nothing was escalated.</description>
         <name>varOwnerName</name>
         <dataType>String</dataType>
-        <description>Name of the senior analyst the file was handed to. Empty when nothing was escalated.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <description>Semicolon-separated list of the evidence signals absent from the file, e.g. &quot;verified financials; current credit check&quot;. Empty when nothing is missing. This is the WHY behind a low confidence band.</description>
         <name>varSignalsMissing</name>
         <dataType>String</dataType>
-        <description>Semicolon-separated list of the evidence signals absent from the file, e.g. &quot;verified financials; current credit check&quot;. Empty when nothing is missing. This is the WHY behind a low confidence band.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
