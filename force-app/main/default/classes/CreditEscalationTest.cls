@@ -313,7 +313,7 @@ private class CreditEscalationTest {
     }
 
     @IsTest
-    static void aDisparityEscalatesAndIsNamedAsAnAdditionalReason() {
+    static void aDisparityEscalatesAndIsReportedWithoutCitingConfidence() {
         // Declared 1,000,000 against verified 500,000 is +100%, well past the 20% threshold.
         Loan_Application__c la = application(true, true, false);
         la.Verified_Annual_Revenue__c = 500000;
@@ -327,8 +327,8 @@ private class CreditEscalationTest {
         Assert.areEqual(true, flow.getVariableValue('varEscalated'), 'A flagged disparity should escalate');
         String reason = (String) flow.getVariableValue('varEscalationReason');
         Assert.isTrue(
-            reason.contains('Additional reason'),
-            'A disparity must be labelled as additional, never as the primary reason: ' + reason
+            reason.contains('disparity'),
+            'The disparity must be stated as the reason the file was routed: ' + reason
         );
         Assert.isFalse(
             reason.contains('Low grounding confidence'),

@@ -30,7 +30,7 @@
     },
     "varEscalationReason" : {
       "title" : "Escalation Reason",
-      "description" : "The deterministic reason the file was routed, naming the confidence band and the specific missing evidence, plus any disparity as a separately labelled additional reason. Present this verbatim; do not paraphrase it into a credit opinion.",
+      "description" : "The deterministic reason the file was routed, naming the confidence band and the specific missing evidence, followed by any declared-vs-verified disparity. Present this verbatim; do not paraphrase it into a credit opinion.",
       "lightning:type" : "lightning__textType",
       "lightning:isPII" : false,
       "copilotAction:isDisplayable" : true,

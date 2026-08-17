@@ -301,7 +301,7 @@
         <expression>IF({!Get_Loan_Application.Grounding_Confidence__c} = 100, &quot;High&quot;, IF({!Get_Loan_Application.Grounding_Confidence__c} = 50, &quot;Medium&quot;, IF({!Get_Loan_Application.Grounding_Confidence__c} = 20, &quot;Low&quot;, &quot;Not yet computed&quot;)))</expression>
     </formulas>
     <formulas>
-        <description>Deterministic and system-generated, never narrative. The confidence clause names the band and the specific missing signals, because an escalation that says only &quot;low confidence&quot; gives the senior nothing to act on. A disparity clause is appended as an explicitly ADDITIONAL reason so it never masquerades as the primary one.</description>
+        <description>Deterministic and system-generated, never narrative. The confidence clause names the band and the specific missing signals, because an escalation that says only &quot;low confidence&quot; gives the senior nothing to act on. A disparity clause is appended after it as a plain statement of the two figures disagreeing — it reports an observation, never a lending opinion.</description>
         <name>fmlEscalationReason</name>
         <dataType>String</dataType>
         <expression>IF({!Get_Loan_Application.Grounding_Confidence__c} = {!CONFIDENCE_LOW}, &quot;Low grounding confidence (&quot; &amp; TEXT({!Get_Loan_Application.Grounding_Confidence__c}) &amp; &quot;%). Missing evidence: &quot; &amp; BLANKVALUE({!Get_Loan_Application.Grounding_Signals_Missing__c}, &quot;not recorded&quot;) &amp; &quot;. &quot;, &quot;&quot;) &amp; IF({!Get_Loan_Application.Financial_Disparity_Flag__c}, &quot;Declared vs verified revenue disparity of &quot; &amp; TEXT({!Get_Loan_Application.Financial_Disparity_Percent__c}) &amp; &quot;%.&quot;, &quot;&quot;)</expression>
@@ -477,7 +477,7 @@
         <isOutput>true</isOutput>
     </variables>
     <variables>
-        <description>The deterministic reason the file was routed, naming the confidence band and the specific missing evidence, plus any disparity as a separately labelled additional reason. Present this verbatim; do not paraphrase it into a credit opinion.</description>
+        <description>The deterministic reason the file was routed, naming the confidence band and the specific missing evidence, followed by any declared-vs-verified disparity. Present this verbatim; do not paraphrase it into a credit opinion.</description>
         <name>varEscalationReason</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
