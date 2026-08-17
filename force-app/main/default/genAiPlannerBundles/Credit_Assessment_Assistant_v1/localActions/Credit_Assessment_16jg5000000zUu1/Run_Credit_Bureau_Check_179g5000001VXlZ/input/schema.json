@@ -1,0 +1,15 @@
+{
+  "required" : [ "loanApplicationId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "loanApplicationId" : {
+      "title" : "Loan Application Id",
+      "description" : "Record Id of the Loan Application to run the credit bureau check for. This is the 18-character Id of the Loan Application record the user is viewing or has named, not the LA-0001 application number and not the applicant's Account Id.",
+      "lightning:type" : "lightning__recordIdType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType",
+  "lightning:textIndexed" : true
+}

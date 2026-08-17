@@ -1,0 +1,61 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "creditCheckId" : {
+      "title" : "Credit Check Id",
+      "description" : "Record Id of the Credit Check that was created and stored. Empty if the result could not be saved.",
+      "lightning:type" : "lightning__recordIdType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "creditCheckReference" : {
+      "title" : "Credit Check Reference",
+      "description" : "The bureau enquiry reference for this pull, e.g. EQFX-CRI-20260816-194980. Quote this when referring to the enquiry.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "creditScore" : {
+      "title" : "Credit Score",
+      "description" : "Credit score returned by the bureau, on a 0-1200 scale. Empty when the bureau could not score the file or the enquiry failed — treat an empty score as unknown, never as zero.",
+      "lightning:type" : "lightning__integerType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "loanApplicationId" : {
+      "title" : "Loan Application Id",
+      "description" : "The Loan Application this result belongs to. Returned so a batch of results can be matched back to what was asked for.",
+      "lightning:type" : "lightning__recordIdType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "statusMessage" : {
+      "title" : "Status Message",
+      "description" : "Plain-language outcome of the enquiry, such as Clean file, Thin file adverse, or the reason it failed. Use this to explain the result rather than restating the raw score.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    },
+    "succeeded" : {
+      "title" : "Succeeded",
+      "description" : "True when the bureau returned a usable credit file and it was stored. False when the enquiry failed or the record could not be saved; check Status Message for the reason before relying on the score.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true,
+      "copilotAction:useHydratedPrompt" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType",
+  "lightning:textIndexed" : true
+}

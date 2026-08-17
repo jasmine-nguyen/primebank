@@ -1,0 +1,43 @@
+{
+  "required" : [ "Input:varQuery", "Input:varLoanSegment" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "Input:varQuery" : {
+      "title" : "varQuery",
+      "description" : "The analyst's policy question — the topic to search for, e.g. \"debt service coverage ratio for secured business loans.\"",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "Input:varLoanSegment" : {
+      "title" : "varLoanSegment",
+      "description" : "The policy-file prefix selecting the applicable segment, built as PrimeCapital_Policy_{SecurityType}_{BorrowerType}% from the applicant's Security Type and Borrower Type — e.g. Secured + Business → PrimeCapital_Policy_Secured_Business%. Always include the trailing %.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "outputLanguage" : {
+      "title" : "Output language",
+      "description" : "Optional. Specify the response language using the appropriate two-character language code or five-character locale code (for example, en_US, en_GB, es, es_MX).",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "citationMode" : {
+      "title" : "Citation Mode",
+      "description" : "Select Citation Mode",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "isPreviewOnly" : {
+      "title" : "Preview Only",
+      "description" : "Resolves the prompt template without generating an LLM response.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType",
+  "lightning:textIndexed" : true
+}

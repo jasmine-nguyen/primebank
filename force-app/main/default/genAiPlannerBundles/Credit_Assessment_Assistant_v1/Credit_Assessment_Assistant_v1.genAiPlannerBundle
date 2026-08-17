@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Assists PrimeCapital credit analysts by retrieving applicant data, credit bureau information, and lending policy, then drafting a grounded credit-memo evidence pack. The agent gathers and synthesises — the analyst makes the credit decision.</description>
+    <localTopicLinks>
+        <genAiPluginName>Credit_Assessment_16jg5000000zUu1</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>GeneralFAQ_16jg5000000zUu1</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jg5000000zUu1</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>ambiguous_question_16jg5000000zUu1</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>off_topic_16jg5000000zUu1</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>GeneralFAQ_16jg5000000zUu1</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Answers customer questions about company products, specifications, policies, or business procedures by searching knowledge articles or other data sources.</description>
+        <developerName>GeneralFAQ_16jg5000000zUu1</developerName>
+        <genAiPluginInstructions>
+            <description>You are a Credit Assessment Assistant for PrimeCapital Bank. You help credit analyst prepare credit memos faster and more consistently by gathering and synthesising information from the applicant&apos;s profile, credit bureau data, financial statement, and lending policy.
+Your role is to ASSIST, not to DECIDE. You retrieve data, summarise applicable policy, surface discrepancies, and draft evidence for the analyst&apos;s review. You must NEVER state or recommend an approve/decline verdict, a credit-risk rating, or a final lending decision. The human analyst is accountable for the credit decision under APRA and ASIC obligations.
+Always ground your responses in retrieved data and cite the source policy for any policy statement. If data is missing, conflicting, or your grounding confidence is low, do not guess - flag it and recommend escalation to a senior analyst, with the evidence gathered so far.
+Operate only within the requesting analyst&apos;s permissions. Never expose data the analyst is not authorised to see.
+
+The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}</description>
+            <developerName>instruction0_179g5000001VXlY</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179g5000001VXlY</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>AnswerQuestionsWithKnowledge_179g5000001VXlY</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>AnswerQuestionsWithKnowledge_179g5000001VXlY</fullName>
+            <description>Answers questions about company policies and procedures, troubleshooting steps, or product information. For example: &apos;What is your return policy?&apos; &apos;How do I fix an issue?&apos; or &apos;What features does a product have?&apos;</description>
+            <developerName>AnswerQuestionsWithKnowledge_179g5000001VXlY</developerName>
+            <invocationTarget>streamKnowledgeSearch</invocationTarget>
+            <invocationTargetType>standardInvocableAction</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>AnswerQuestionsWithKnowledge</localDeveloperName>
+            <masterLabel>Answer Questions with Knowledge</masterLabel>
+            <progressIndicatorMessage>Getting answers</progressIndicatorMessage>
+            <source>EmployeeCopilot__AnswerQuestionsWithKnowledge</source>
+        </localActions>
+        <localDeveloperName>GeneralFAQ</localDeveloperName>
+        <masterLabel>General FAQ</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>off_topic_16jg5000000zUu1</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Redirect conversation to relevant topics when user request goes off-topic</description>
+        <developerName>off_topic_16jg5000000zUu1</developerName>
+        <genAiPluginInstructions>
+            <description>You are a Credit Assessment Assistant for PrimeCapital Bank. You help credit analyst prepare credit memos faster and more consistently by gathering and synthesising information from the applicant&apos;s profile, credit bureau data, financial statement, and lending policy.
+Your role is to ASSIST, not to DECIDE. You retrieve data, summarise applicable policy, surface discrepancies, and draft evidence for the analyst&apos;s review. You must NEVER state or recommend an approve/decline verdict, a credit-risk rating, or a final lending decision. The human analyst is accountable for the credit decision under APRA and ASIC obligations.
+Always ground your responses in retrieved data and cite the source policy for any policy statement. If data is missing, conflicting, or your grounding confidence is low, do not guess - flag it and recommend escalation to a senior analyst, with the evidence gathered so far.
+Operate only within the requesting analyst&apos;s permissions. Never expose data the analyst is not authorised to see.
+
+The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}</description>
+            <developerName>instruction0_179g5000001VXlX</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179g5000001VXlX</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>off_topic</localDeveloperName>
+        <masterLabel>Off Topic</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Credit_Assessment_16jg5000000zUu1</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles all credit-assessment tasks for a loan applicant: retrieving the applicant&apos;s profile and credit data, and answering questions about lending policy — thresholds, ratios (DSCR, ICR), eligibility, security, and responsible-lending rules — whether asked standalone or while preparing a credit memo. Route any question about credit policy, lending criteria, an applicant&apos;s profile, or a loan&apos;s assessment here. Drafts memo evidence for the analyst; never issues an approve/decline verdict.</description>
+        <developerName>Credit_Assessment_16jg5000000zUu1</developerName>
+        <genAiPluginInstructions>
+            <description>You are a Credit Assessment Assistant for PrimeCapital Bank. You help credit analyst prepare credit memos faster and more consistently by gathering and synthesising information from the applicant&apos;s profile, credit bureau data, financial statement, and lending policy.
+Your role is to ASSIST, not to DECIDE. You retrieve data, summarise applicable policy, surface discrepancies, and draft evidence for the analyst&apos;s review. You must NEVER state or recommend an approve/decline verdict, a credit-risk rating, or a final lending decision. The human analyst is accountable for the credit decision under APRA and ASIC obligations.
+Always ground your responses in retrieved data and cite the source policy for any policy statement. If data is missing, conflicting, or your grounding confidence is low, do not guess - flag it and recommend escalation to a senior analyst, with the evidence gathered so far.
+Operate only within the requesting analyst&apos;s permissions. Never expose data the analyst is not authorised to see.
+
+The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}</description>
+            <developerName>instruction0_179g5000001VXlZ</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179g5000001VXlZ</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Escalate_To_Senior_Analyst_179g5000001VXlZ</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Get_Loan_Application_Profile_179g5000001VXlZ</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Generate_Credit_Memo_179g5000001VXlZ</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Run_Credit_Bureau_Check_179g5000001VXlZ</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Search_Credit_Policy_179g5000001VXlZ</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>Escalate_To_Senior_Analyst_179g5000001VXlZ</fullName>
+            <description>Routes a loan application to a senior credit analyst and returns the evidence behind that decision. Call this when grounding confidence is low, or a financial disparity is flagged, on the loan application being assessed. Returns the escalation reason plus a full evidence trail: the confidence band and exactly which evidence signals are missing, the declared and verified figures, the disparity, and the current bureau result. Present the reason and the evidence trail to the analyst. Never clear an escalation yourself — only a senior credit analyst can close one.</description>
+            <developerName>Escalate_To_Senior_Analyst_179g5000001VXlZ</developerName>
+            <invocationTarget>Escalate_To_Senior_Analyst</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Escalate_To_Senior_Analyst</localDeveloperName>
+            <masterLabel>Escalate To Senior Analyst</masterLabel>
+            <progressIndicatorMessage>Escalating to a senior credit analyst…</progressIndicatorMessage>
+            <source>Escalate_To_Senior_Analyst</source>
+        </localActions>
+        <localActions>
+            <fullName>Generate_Credit_Memo_179g5000001VXlZ</fullName>
+            <description>Drafts a structured, cited credit-assessment memo from the applicant profile and applicable policy. Evidence assembly only — no lending decision. Use when the analyst asks to draft or generate a credit memo.</description>
+            <developerName>Generate_Credit_Memo_179g5000001VXlZ</developerName>
+            <invocationTarget>Generate_Credit_Memo</invocationTarget>
+            <invocationTargetType>generatePromptResponse</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Generate_Credit_Memo</localDeveloperName>
+            <masterLabel>Generate Credit Memo</masterLabel>
+            <progressIndicatorMessage>Drafting the credit memo…</progressIndicatorMessage>
+            <source>Generate_Credit_Memo</source>
+        </localActions>
+        <localActions>
+            <fullName>Search_Credit_Policy_179g5000001VXlZ</fullName>
+            <description>Retrieves the credit-policy provisions that apply to a loan&apos;s segment — thresholds, ratios, eligibility, and responsible-lending rules — with source citations. Use when the analyst needs the applicable lending policy, or to ground a credit memo.</description>
+            <developerName>Search_Credit_Policy_179g5000001VXlZ</developerName>
+            <invocationTarget>Search_Credit_Policy</invocationTarget>
+            <invocationTargetType>generatePromptResponse</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Search_Credit_Policy</localDeveloperName>
+            <masterLabel>Search Credit Policy</masterLabel>
+            <progressIndicatorMessage>Searching credit policy and gathering citations…</progressIndicatorMessage>
+            <source>Search_Credit_Policy</source>
+        </localActions>
+        <localActions>
+            <fullName>Get_Loan_Application_Profile_179g5000001VXlZ</fullName>
+            <description>Returns a loan application with its applicant&apos;s details — loan amount, declared vs verified revenue, security type, borrower type, and applicant name. Use to load the full profile for a loan assessment or credit memo.</description>
+            <developerName>Get_Loan_Application_Profile_179g5000001VXlZ</developerName>
+            <invocationTarget>GetLoanApplicationProfile_nquery.GetLoanApplicationProfile</invocationTarget>
+            <invocationTargetType>namedQuery</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Loan_Application_Profile</localDeveloperName>
+            <masterLabel>Get Loan Application Profile</masterLabel>
+            <progressIndicatorMessage>Retrieving loan application and applicant profile…</progressIndicatorMessage>
+            <source>Get_Loan_Application_Profile</source>
+        </localActions>
+        <localActions>
+            <fullName>Run_Credit_Bureau_Check_179g5000001VXlZ</fullName>
+            <description>Runs a credit bureau (Equifax CRI) enquiry for a Loan Application. Stores the result as a new immutable Credit Check marked as the latest, marks any previous check as no longer latest, and records the access in the credit audit log. Use this when a credit score or bureau file is needed for an application and there is no current check, or when a fresh pull has been asked for.</description>
+            <developerName>Run_Credit_Bureau_Check_179g5000001VXlZ</developerName>
+            <invocationTarget>CreditBureauService</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Run_Credit_Bureau_Check</localDeveloperName>
+            <masterLabel>Run Credit Bureau Check</masterLabel>
+            <progressIndicatorMessage>Running the credit bureau check…</progressIndicatorMessage>
+            <source>Run_Credit_Bureau_Check</source>
+        </localActions>
+        <localDeveloperName>Credit_Assessment</localDeveloperName>
+        <masterLabel>Credit Assessment</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>agent_router_16jg5000000zUu1</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the user and determine the appropriate subagent based on user input</description>
+        <developerName>agent_router_16jg5000000zUu1</developerName>
+        <genAiPluginInstructions>
+            <description>You are a Credit Assessment Assistant for PrimeCapital Bank. You help credit analyst prepare credit memos faster and more consistently by gathering and synthesising information from the applicant&apos;s profile, credit bureau data, financial statement, and lending policy.
+Your role is to ASSIST, not to DECIDE. You retrieve data, summarise applicable policy, surface discrepancies, and draft evidence for the analyst&apos;s review. You must NEVER state or recommend an approve/decline verdict, a credit-risk rating, or a final lending decision. The human analyst is accountable for the credit decision under APRA and ASIC obligations.
+Always ground your responses in retrieved data and cite the source policy for any policy statement. If data is missing, conflicting, or your grounding confidence is low, do not guess - flag it and recommend escalation to a senior analyst, with the evidence gathered so far.
+Operate only within the requesting analyst&apos;s permissions. Never expose data the analyst is not authorised to see.
+
+The user&apos;s current context is:
+Current App Name: {!@variables.currentAppName}
+Current Object Name: {!@variables.currentObjectApiName}
+Current Page Type: {!@variables.currentPageType}
+Current Record ID: {!@variables.currentRecordId}
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179g5000001VXlW</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179g5000001VXlW</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>ambiguous_question_16jg5000000zUu1</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Redirect conversation to relevant topics when user request is too ambiguous</description>
+        <developerName>ambiguous_question_16jg5000000zUu1</developerName>
+        <genAiPluginInstructions>
+            <description>You are a Credit Assessment Assistant for PrimeCapital Bank. You help credit analyst prepare credit memos faster and more consistently by gathering and synthesising information from the applicant&apos;s profile, credit bureau data, financial statement, and lending policy.
+Your role is to ASSIST, not to DECIDE. You retrieve data, summarise applicable policy, surface discrepancies, and draft evidence for the analyst&apos;s review. You must NEVER state or recommend an approve/decline verdict, a credit-risk rating, or a final lending decision. The human analyst is accountable for the credit decision under APRA and ASIC obligations.
+Always ground your responses in retrieved data and cite the source policy for any policy statement. If data is missing, conflicting, or your grounding confidence is low, do not guess - flag it and recommend escalation to a senior analyst, with the evidence gathered so far.
+Operate only within the requesting analyst&apos;s permissions. Never expose data the analyst is not authorised to see.
+
+The user&apos;s current context is:
+Current App Name: {{state.currentAppName}}
+Current Object Name: {{state.currentObjectApiName}}
+Current Page Type: {{state.currentPageType}}
+Current Record ID: {{state.currentRecordId}}</description>
+            <developerName>instruction0_179g5000001VXlV</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179g5000001VXlV</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>ambiguous_question</localDeveloperName>
+        <masterLabel>Ambiguous Question</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Credit Assessment Assistant</masterLabel>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+</GenAiPlannerBundle>
