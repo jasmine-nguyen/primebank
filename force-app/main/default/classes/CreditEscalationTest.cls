@@ -66,7 +66,8 @@ private class CreditEscalationTest {
                 Grounding_Signals_Missing__c,
                 Current_Credit_Checks__c,
                 Escalated__c,
-                Escalation_Reason__c
+                Escalation_Reason__c,
+                Financial_Disparity_Flag__c
             FROM Loan_Application__c
             WHERE Id = :loanApplicationId
         ];
@@ -280,7 +281,7 @@ private class CreditEscalationTest {
     }
 
     @IsTest
-    static void escalationIsIdempotent() {
+    static void aReRunOnUnchangedEvidenceChangesNothing() {
         Loan_Application__c la = application(false, true, false);
         escalate(la.Id);
         Loan_Application__c afterFirst = reload(la.Id);
@@ -289,13 +290,98 @@ private class CreditEscalationTest {
         Flow.Interview.Escalate_To_Senior_Analyst second = escalate(la.Id);
         Test.stopTest();
 
-        Assert.areEqual(true, second.getVariableValue('varAlreadyEscalated'), 'The second call should report a no-op');
+        Assert.areEqual(
+            true,
+            second.getVariableValue('varAlreadyEscalated'),
+            'A re-run is a refresh, not a new escalation, and must report itself as one'
+        );
         Loan_Application__c afterSecond = reload(la.Id);
         Assert.areEqual(afterFirst.OwnerId, afterSecond.OwnerId, 'A re-run must not bounce ownership');
+        // The reason IS rewritten on every re-assessment, but from the same unchanged fields, so it
+        // lands on the same string and field history records nothing. Churn only shows up when the
+        // evidence has actually moved — see aReAssessmentRewritesTheReasonToMatchTheNewState.
         Assert.areEqual(
             afterFirst.Escalation_Reason__c,
             afterSecond.Escalation_Reason__c,
-            'A re-run must not re-stamp the reason'
+            'Unchanged evidence must produce an unchanged reason'
+        );
+    }
+
+    @IsTest
+    static void aReAssessmentRewritesTheReasonToMatchTheNewState() {
+        // Low on two counts: no verified financials, and no bureau file on record.
+        Loan_Application__c la = application(false, true, false);
+        escalate(la.Id);
+        Loan_Application__c afterFirst = reload(la.Id);
+        Assert.isTrue(
+            afterFirst.Escalation_Reason__c.contains('current credit check'),
+            'Precondition: the first reason should name the missing bureau file: ' + afterFirst.Escalation_Reason__c
+        );
+
+        // The analyst closes one of the two gaps. The file stays escalated and stays Low, but the
+        // reason it carries is now describing a state the record has moved past.
+        addCurrentCreditCheck(la.Id, 700);
+
+        Test.startTest();
+        Flow.Interview.Escalate_To_Senior_Analyst second = escalate(la.Id);
+        Test.stopTest();
+
+        Loan_Application__c afterSecond = reload(la.Id);
+        Assert.areEqual(true, second.getVariableValue('varAlreadyEscalated'), 'A refresh is not a new escalation');
+        Assert.areNotEqual(
+            afterFirst.Escalation_Reason__c,
+            afterSecond.Escalation_Reason__c,
+            'A re-assessment must rewrite the reason once the evidence has changed'
+        );
+        Assert.isFalse(
+            afterSecond.Escalation_Reason__c.contains('current credit check'),
+            'The refreshed reason must not still name a gap that has been closed: ' + afterSecond.Escalation_Reason__c
+        );
+        Assert.isTrue(
+            afterSecond.Escalation_Reason__c.contains('verified financials'),
+            'The gap that remains must still be named: ' + afterSecond.Escalation_Reason__c
+        );
+        Assert.areEqual(afterFirst.OwnerId, afterSecond.OwnerId, 'A refresh must not bounce ownership');
+        Assert.isTrue(afterSecond.Escalated__c, 'A refresh must leave the file escalated');
+        Assert.areEqual(
+            afterSecond.Escalation_Reason__c,
+            (String) second.getVariableValue('varEscalationReason'),
+            'What the agent is told must match what was stored'
+        );
+    }
+
+    @IsTest
+    static void aResolvedTriggerLeavesTheFileEscalatedWithAClearedNote() {
+        Loan_Application__c la = application(true, true, false);
+        addCurrentCreditCheck(la.Id, 720);
+        // Declared 1,000,000 against verified 500,000 is +100%, well past the 20% threshold.
+        la.Verified_Annual_Revenue__c = 500000;
+        update la;
+        escalate(la.Id);
+        Loan_Application__c afterFirst = reload(la.Id);
+        Assert.isTrue(afterFirst.Escalated__c, 'Precondition: the disparity should have routed it');
+
+        // A corrected statement arrives and the disparity falls away.
+        la.Verified_Annual_Revenue__c = 950000;
+        update la;
+
+        Test.startTest();
+        Flow.Interview.Escalate_To_Senior_Analyst second = escalate(la.Id);
+        Test.stopTest();
+
+        Loan_Application__c afterSecond = reload(la.Id);
+        Assert.isFalse(afterSecond.Financial_Disparity_Flag__c, 'Precondition: the disparity should be resolved');
+        Assert.isTrue(afterSecond.Escalated__c, 'A cleared trigger is not a cleared escalation');
+        Assert.areEqual(afterFirst.OwnerId, afterSecond.OwnerId, 'The file stays with the senior it was given to');
+        Assert.isTrue(
+            afterSecond.Escalation_Reason__c.startsWith('Escalation conditions no longer met'),
+            'The reason must say the condition has cleared, not describe a disparity that is gone: ' +
+            afterSecond.Escalation_Reason__c
+        );
+        Assert.areEqual(
+            afterSecond.Escalation_Reason__c,
+            (String) second.getVariableValue('varEscalationReason'),
+            'What the agent is told must match what was stored'
         );
     }
 

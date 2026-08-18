@@ -3,11 +3,11 @@
     <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <description>Idempotent path. The file is already with a senior, so nothing is written and the owner is left alone — re-running must not re-stamp the reason or bounce ownership. The existing reason and a fresh evidence trail are still returned, so the agent can explain the state it found.</description>
+        <description>Already escalated, and on re-assessment the trigger no longer fires. Reports the standing note just written by Note_Trigger_Cleared, so what the agent says matches what the record shows. Ownership is still left alone — re-running must not bounce the file back off whichever senior holds it.</description>
         <name>Set_Already_Escalated</name>
         <label>Set Already Escalated</label>
-        <locationX>391</locationX>
-        <locationY>658</locationY>
+        <locationX>511</locationX>
+        <locationY>890</locationY>
         <assignmentItems>
             <assignToReference>varAlreadyEscalated</assignToReference>
             <operator>Assign</operator>
@@ -26,7 +26,7 @@
             <assignToReference>varEscalationReason</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Loan_Application.Escalation_Reason__c</elementReference>
+                <elementReference>TRIGGER_CLEARED_NOTE</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -75,7 +75,7 @@
             <assignToReference>varEscalationReason</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>fmlEscalationReason</elementReference>
+                <elementReference>fmlEscalationReasonBounded</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -191,6 +191,62 @@
             </value>
         </assignmentItems>
     </assignments>
+    <assignments>
+        <description>Already escalated, trigger still met, reason just refreshed. Reports the freshly computed reason rather than what was stored a moment ago, so the agent and the record cannot disagree. varAlreadyEscalated stays true — this is not a new escalation and must not be announced as one.</description>
+        <name>Set_Reason_Refreshed</name>
+        <label>Set Reason Refreshed</label>
+        <locationX>271</locationX>
+        <locationY>890</locationY>
+        <assignmentItems>
+            <assignToReference>varAlreadyEscalated</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varEscalated</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varEscalationReason</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fmlEscalationReasonBounded</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varEvidenceTrail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fmlEvidenceTrail</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varConfidenceBand</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>fmlConfidenceBand</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGroundingConfidence</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Loan_Application.Grounding_Confidence__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varSignalsMissing</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Loan_Application.Grounding_Signals_Missing__c</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
     <constants>
         <description>Must match CONFIDENCE_LOW in Loan Application Grounding Confidence Calc. The two are a pair: change one and this action stops firing.</description>
         <name>CONFIDENCE_LOW</name>
@@ -207,8 +263,16 @@
             <stringValue>senior.analyst.e8fb017a0cbd@primecapital.demo</stringValue>
         </value>
     </constants>
+    <constants>
+        <description>Written to Escalation_Reason__c when a re-assessment finds the file still escalated but the condition that routed it no longer met. The field states what is true now; the original reason survives in field history. Worded so it can never be read as the file being cleared — only a senior holding Can_Clear_Escalation can do that.</description>
+        <name>TRIGGER_CLEARED_NOTE</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Escalation conditions no longer met at re-assessment. Routing stands until a senior closes it.</stringValue>
+        </value>
+    </constants>
     <decisions>
-        <description>Idempotency gate. Runs before the trigger test so that a second call on an escalated file is a no-op regardless of why it was escalated the first time.</description>
+        <description>Routing gate for a file that is already with a senior. It is no longer a hard no-op: applicants re-upload documents, so a re-assessment must refresh the stored reason rather than leave text that describes a state the record has since moved past. What stays a no-op is the escalation itself — no path here touches Escalated__c or OwnerId.</description>
         <name>Already_Escalated</name>
         <label>Already Escalated?</label>
         <locationX>279</locationX>
@@ -228,7 +292,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Set_Already_Escalated</targetReference>
+                <targetReference>Still_Triggered</targetReference>
             </connector>
             <label>Escalation Already Open</label>
         </rules>
@@ -292,6 +356,39 @@
             <label>Trigger Met</label>
         </rules>
     </decisions>
+    <decisions>
+        <description>Re-assessment gate for a file that is already escalated. Deliberately repeats the Should_Escalate conditions rather than sharing them: the two ask different questions — Should_Escalate asks whether to route a file, this asks whether the routing reason still holds — and a future change to one must not silently move the other. Either way the file stays escalated and stays with its senior.</description>
+        <name>Still_Triggered</name>
+        <label>Still Triggered?</label>
+        <locationX>391</locationX>
+        <locationY>658</locationY>
+        <defaultConnector>
+            <targetReference>Note_Trigger_Cleared</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Trigger Cleared</defaultConnectorLabel>
+        <rules>
+            <name>Trigger_Still_Met</name>
+            <conditionLogic>1 OR 2</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Loan_Application.Grounding_Confidence__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>CONFIDENCE_LOW</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Loan_Application.Financial_Disparity_Flag__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Refresh_Escalation_Reason</targetReference>
+            </connector>
+            <label>Trigger Still Met</label>
+        </rules>
+    </decisions>
     <description>Action 6. Routes a loan application to a senior credit analyst when grounding confidence is Low or a financial disparity is flagged, and returns the evidence trail behind that decision. Never clears Escalated__c on any path — closing an escalation requires the Can_Clear_Escalation permission, which the Only_Senior_Can_Clear_Escalation validation rule enforces against direct edits too.</description>
     <environments>Default</environments>
     <formulas>
@@ -305,6 +402,12 @@
         <name>fmlEscalationReason</name>
         <dataType>String</dataType>
         <expression>IF({!Get_Loan_Application.Grounding_Confidence__c} = {!CONFIDENCE_LOW}, &quot;Low grounding confidence (&quot; &amp; TEXT({!Get_Loan_Application.Grounding_Confidence__c}) &amp; &quot;%). Missing evidence: &quot; &amp; BLANKVALUE({!Get_Loan_Application.Grounding_Signals_Missing__c}, &quot;not recorded&quot;) &amp; &quot;. &quot;, &quot;&quot;) &amp; IF({!Get_Loan_Application.Financial_Disparity_Flag__c}, &quot;Declared vs verified revenue disparity of &quot; &amp; TEXT({!Get_Loan_Application.Financial_Disparity_Percent__c}) &amp; &quot;%.&quot;, &quot;&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Trims, then length-guards. TRIM matters for more than tidiness: the reason template ends each clause with a trailing space, so a confidence-only reason carries one. Salesforce strips it on save, which left the agent quoting a string that differed from the stored field — invisible to a reader, but they were genuinely not the same value. Trimming here makes every path return exactly what was written. Length guard for the stored field. Escalation_Reason__c is Text(255) so that field history captures old and new values — history records only &quot;edited&quot; for a Long Text Area — which means the reason has to fit. The worst case the templates can currently produce is roughly 196 characters (the four fixed missing-signal phrases, plus the fixed wording, plus a six-digit percent), so this never truncates today. It exists so that growing a template later degrades the text rather than failing the update.</description>
+        <name>fmlEscalationReasonBounded</name>
+        <dataType>String</dataType>
+        <expression>IF(LEN(TRIM({!fmlEscalationReason})) &lt;= 255, TRIM({!fmlEscalationReason}), LEFT(TRIM({!fmlEscalationReason}), 252) &amp; &quot;...&quot;)</expression>
     </formulas>
     <formulas>
         <description>Everything the senior needs without reopening the record. States the confidence AND why it is what it is, which is the part a confidence escalation must carry. Figures are reported as &quot;not provided&quot; rather than zero when absent — a missing number and a zero mean very different things on a credit file.</description>
@@ -408,6 +511,56 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
+        <description>The file is still escalated but the condition that routed it has since cleared. Writes the standing note so the field states what is true now; field history keeps the original reason. Escalated__c and OwnerId are untouched — a cleared trigger is not a cleared escalation, and only a senior can close one.</description>
+        <name>Note_Trigger_Cleared</name>
+        <label>Note Trigger Cleared</label>
+        <locationX>511</locationX>
+        <locationY>782</locationY>
+        <connector>
+            <targetReference>Set_Already_Escalated</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Loan_Application.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Escalation_Reason__c</field>
+            <value>
+                <elementReference>TRIGGER_CLEARED_NOTE</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Loan_Application__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Re-assessment with the trigger still met. Rewrites the reason from current field values so it can never describe a state the record has moved past — the drift this branch used to cause. Writes exactly one field: Escalated__c and OwnerId are left alone, so Only_Senior_Can_Clear_Escalation is never engaged and a senior who reassigned the file keeps it. The prior reason is preserved by field history.</description>
+        <name>Refresh_Escalation_Reason</name>
+        <label>Refresh Escalation Reason</label>
+        <locationX>271</locationX>
+        <locationY>782</locationY>
+        <connector>
+            <targetReference>Set_Reason_Refreshed</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Loan_Application.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Escalation_Reason__c</field>
+            <value>
+                <elementReference>fmlEscalationReasonBounded</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Loan_Application__c</object>
+    </recordUpdates>
+    <recordUpdates>
         <description>Raises the flag, records the deterministic reason, and hands the file over. Escalated__c is only ever set to true here — no path in this flow clears it, because the analyst whose work triggered the escalation must not be able to close it.</description>
         <name>Update_Loan_Application</name>
         <label>Update Loan Application</label>
@@ -433,7 +586,7 @@
         <inputAssignments>
             <field>Escalation_Reason__c</field>
             <value>
-                <elementReference>fmlEscalationReason</elementReference>
+                <elementReference>fmlEscalationReasonBounded</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
