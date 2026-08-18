@@ -2,9 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Security_Type__c</fullName>
     <description>Secured vs unsecured, distinct from Borrower_Type__c (business/consumer) and Loan_Purpose__c. Combined with those two, this is the secured_business/secured_personal/unsecured_business/unsecured_personal segmentation used for policy-PDF pre-filtering.</description>
-    <externalId>false</externalId>
     <label>Security Type</label>
+    <required>false</required>
     <securityClassification>Internal</securityClassification>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>

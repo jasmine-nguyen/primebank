@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Escalation_Reason__c</fullName>
-    <description>Deterministic reason string for why the file was routed to a senior analyst (e.g. low grounding confidence, financial disparity). Kept factual/system-generated, not narrative, so it isn't itself a PII leak vector.</description>
+    <description>Deterministic reason string for why the file is currently routed to a senior analyst (e.g. low grounding confidence, financial disparity). Kept factual/system-generated, not narrative, so it isn&apos;t itself a PII leak vector. Reflects the CURRENT assessment, not the original routing — the escalation flow rewrites it on every re-assessment so it cannot drift out of step with the fields beside it. The record of why the file was originally routed lives in field history, which is why this is Text(255) rather than a Long Text Area: history stores old and new values at 255 characters or fewer, but records only &quot;edited&quot; above that.</description>
     <externalId>false</externalId>
     <label>Escalation Reason</label>
-    <length>1000</length>
+    <length>255</length>
+    <required>false</required>
     <securityClassification>Internal</securityClassification>
-    <type>LongTextArea</type>
-    <visibleLines>3</visibleLines>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
 </CustomField>

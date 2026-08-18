@@ -2,10 +2,11 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Borrower_Type__c</fullName>
     <description>Drives which compliance regime applies to this file — ASIC RG 209 responsible lending obligations apply to Consumer, not Business.</description>
-    <externalId>false</externalId>
     <label>Borrower Type</label>
     <required>true</required>
     <securityClassification>Internal</securityClassification>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>

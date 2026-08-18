@@ -7,6 +7,7 @@
     <label>Grounding Signals Missing</label>
     <length>255</length>
     <securityClassification>Internal</securityClassification>
+    <trackHistory>true</trackHistory>
     <type>Text</type>
     <unique>false</unique>
 </CustomField>
