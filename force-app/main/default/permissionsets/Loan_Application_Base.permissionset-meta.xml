@@ -1,102 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label>Loan Application Base</label>
-    <description>Object CRUD (no Delete) and Operational-tier FLS for Loan_Application__c, plus the PrimeCapital Lending app and tabs. Account+Contact Read are dependencies of the Applicant__c Person Account lookup. Sensitive PII: Loan_Application_Sensitive_Financials.</description>
-    <hasActivationRequired>false</hasActivationRequired>
+    <agentAccesses>
+        <agentName>Credit_Assessment_Assistant</agentName>
+        <enabled>true</enabled>
+    </agentAccesses>
     <applicationVisibilities>
         <application>PrimeCapital_Lending</application>
         <visible>true</visible>
     </applicationVisibilities>
-    <tabSettings>
-        <tab>Loan_Application__c</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>Applicants</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
     <classAccesses>
         <apexClass>ApplicantListController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>StatementExtractionService</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>StatementExtractionQueueable</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>StatementExtractionService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Object CRUD (no Delete) and Operational-tier FLS for Loan_Application__c, plus the PrimeCapital Lending app and tabs. Account+Contact Read are dependencies of the Applicant__c Person Account lookup. Sensitive PII: Loan_Application_Sensitive_Financials.</description>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Loan_Application__c.Current_Credit_Checks__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Loan_Application__c.Escalated__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Loan_Application__c.Escalation_Reason__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Loan_Application__c.Financial_Disparity_Flag__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Loan_Application__c.Grounding_Confidence__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Loan_Application__c.Grounding_Signals_Missing__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Loan_Application__c.Needs_Financial_Review__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Loan_Application__c.Security_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Loan_Application__c.Statement_Extraction_Notes__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Loan Application Base</label>
     <objectPermissions>
-        <object>Contact</object>
         <allowCreate>false</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
-        <viewAllRecords>false</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
         <object>Account</object>
+        <viewAllFields>false</viewAllFields>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
         <allowCreate>false</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
+        <object>Contact</object>
+        <viewAllFields>false</viewAllFields>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
-        <object>Loan_Application__c</object>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
+        <object>Loan_Application__c</object>
+        <viewAllFields>false</viewAllFields>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Security_Type__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Financial_Disparity_Flag__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Grounding_Confidence__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Escalated__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Escalation_Reason__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Needs_Financial_Review__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Statement_Extraction_Notes__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Grounding_Signals_Missing__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Loan_Application__c.Current_Credit_Checks__c</field>
-        <editable>false</editable>
-        <readable>true</readable>
-    </fieldPermissions>
+    <tabSettings>
+        <tab>Applicants</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Loan_Application__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>
