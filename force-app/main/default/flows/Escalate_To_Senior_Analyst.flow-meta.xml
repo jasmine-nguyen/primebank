@@ -671,7 +671,7 @@
         <isOutput>true</isOutput>
     </variables>
     <variables>
-        <description>Semicolon-separated list of the evidence signals absent from the file, e.g. &quot;verified financials; current credit check&quot;. Empty when nothing is missing. This is the WHY behind a low confidence band.</description>
+        <description>Semicolon-separated list of the evidence signals absent from the file, e.g. &quot;verified revenue; current credit check&quot;. Empty when nothing is missing. This is the WHY behind a low confidence band.</description>
         <name>varSignalsMissing</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>

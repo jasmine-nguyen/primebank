@@ -157,8 +157,46 @@ private class CreditEscalationTest {
         Loan_Application__c stored = reload(la.Id);
         Assert.areEqual(50, stored.Grounding_Confidence__c, 'A usable file with a thin profile should score Medium');
         Assert.isTrue(
+            stored.Grounding_Signals_Missing__c.contains('declared revenue'),
+            'The missing declared revenue must be named by field: ' + stored.Grounding_Signals_Missing__c
+        );
+        Assert.isTrue(
+            stored.Grounding_Signals_Missing__c.contains('security type'),
+            'The missing security type must be named by field: ' + stored.Grounding_Signals_Missing__c
+        );
+        Assert.isFalse(
             stored.Grounding_Signals_Missing__c.contains('complete applicant profile'),
-            'The profile gap should be named: ' + stored.Grounding_Signals_Missing__c
+            'The grouped label must be gone — it hid which of three fields was absent: ' +
+            stored.Grounding_Signals_Missing__c
+        );
+    }
+
+    /**
+     * LA-0004's exact shape, and the case that exposed the grouped labels: a file complete in
+     * every respect except the applicant's own declared revenue. The old formula reported this as
+     * "complete applicant profile", which reads as a thin applicant record and never mentions the
+     * figure that is actually absent — the same figure the disparity control abstained for. The
+     * two controls were covering each other correctly and the wording hid it.
+     *
+     * Asserted by exact equality, not contains: a grouped label concatenated alongside the
+     * per-field one would still satisfy contains, and that is the failure being guarded against.
+     */
+    @IsTest
+    static void aMissingDeclaredRevenueIsNamedRatherThanGroupedUnderTheProfile() {
+        Loan_Application__c la = application(true, true, false);
+        addCurrentCreditCheck(la.Id, 720);
+
+        Test.startTest();
+        la.Declared_Annual_Revenue__c = null;
+        update la;
+        Test.stopTest();
+
+        Loan_Application__c stored = reload(la.Id);
+        Assert.areEqual(50, stored.Grounding_Confidence__c, 'A sound evidence base with one profile gap is Medium');
+        Assert.areEqual(
+            'declared revenue',
+            stored.Grounding_Signals_Missing__c,
+            'The one absent field must be named, and nothing else claimed alongside it'
         );
     }
 
@@ -170,8 +208,12 @@ private class CreditEscalationTest {
         Loan_Application__c stored = reload(la.Id);
         Assert.areEqual(20, stored.Grounding_Confidence__c, 'No verified financials is a hard evidence failure');
         Assert.isTrue(
-            stored.Grounding_Signals_Missing__c.contains('verified financials'),
-            'The financials gap should be named: ' + stored.Grounding_Signals_Missing__c
+            stored.Grounding_Signals_Missing__c.contains('verified revenue'),
+            'The missing verified revenue must be named by field: ' + stored.Grounding_Signals_Missing__c
+        );
+        Assert.isTrue(
+            stored.Grounding_Signals_Missing__c.contains('verified net income'),
+            'The missing verified net income must be named by field: ' + stored.Grounding_Signals_Missing__c
         );
     }
 
@@ -183,7 +225,7 @@ private class CreditEscalationTest {
         Loan_Application__c stored = reload(la.Id);
         Assert.areEqual(20, stored.Grounding_Confidence__c, 'An unreadable statement is a hard evidence failure');
         Assert.isTrue(
-            stored.Grounding_Signals_Missing__c.contains('statement review gate'),
+            stored.Grounding_Signals_Missing__c.contains('statement flagged for review'),
             'The review gate should be named: ' + stored.Grounding_Signals_Missing__c
         );
     }
@@ -254,7 +296,7 @@ private class CreditEscalationTest {
             'Confidence must be named as the primary reason: ' + stored.Escalation_Reason__c
         );
         Assert.isTrue(
-            stored.Escalation_Reason__c.contains('verified financials'),
+            stored.Escalation_Reason__c.contains('verified revenue'),
             'The reason must name WHICH evidence is missing: ' + stored.Escalation_Reason__c
         );
     }
@@ -338,7 +380,7 @@ private class CreditEscalationTest {
             'The refreshed reason must not still name a gap that has been closed: ' + afterSecond.Escalation_Reason__c
         );
         Assert.isTrue(
-            afterSecond.Escalation_Reason__c.contains('verified financials'),
+            afterSecond.Escalation_Reason__c.contains('verified revenue'),
             'The gap that remains must still be named: ' + afterSecond.Escalation_Reason__c
         );
         Assert.areEqual(afterFirst.OwnerId, afterSecond.OwnerId, 'A refresh must not bounce ownership');
